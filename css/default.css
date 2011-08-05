@@ -32,32 +32,28 @@ body
 	padding: 10px;
 }
 
-#machine .hn h2 {
+#machine .hostname h2 {
 	font-size: 18px;
 	font-weight: bold;
 	line-height: 24px;
 	margin: 0 0 5px 0;
 }
-#machine .ip {
+#machine .net {
 	float: right;
 	font-family: Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
 	text-align: right;
 }
-#machine .os, #machine .kv {
+#machine .os {
 	clear: left;
 	float: left;
 }
-#machine .up {
+#machine .uptime {
 	clear: both;
-	padding-top: 5px;
+	padding-top: 8px;
 }
 
-#load .cpu {
-	font-weight: bold;
-}
-
-h2.swapheader {
-	margin-top: 10px;
+#memory #swap {
+	margin-top: 8px;
 }
 
 .meter {
@@ -86,7 +82,7 @@ h2.swapheader {
 	-moz-border-radius: 0;
 	-webkit-border-radius: 0;
 }
-.meter .pct {
+.meter .fill .pct {
 	display: none;
 	float: right;
 }
@@ -146,11 +142,11 @@ h2.swapheader {
 	padding: 3px 0 0 0;
 }
 #diskspace .disk {
-	width: 100px;
+	width: 120px;
 	font-family: Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
 }
 #diskspace .type {
-	width: 80px;
+	width: 60px;
 	font-family: Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
 }
 #diskspace .size {

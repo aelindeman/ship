@@ -9,9 +9,9 @@
  * Written and maintained by Alex Lindeman <aelindeman@gmail.com>
  * License: Creative Commons Attribution-ShareAlike 3.0
  *          (http://creativecommons.org/licenses/by-sa/3.0)
- */
+*/
 
-define ('SHIP_VERSION', '2.0 alpha 1 2011-08-05'); 
+define ('SHIP_VERSION', '2.0 alpha 3'); 
 
 class ship
 {
@@ -26,13 +26,13 @@ class ship
 	
 	/* Ship configuration. Should be handled as read-only, since any changes
 	made here will not (and, at the moment, can not) be saved. It is filled in
-	later with the config function. */
+	later with the config function. This should be used only in this file. */
 	private $config = array();
 	
 	/* Configuration loader function. This will attempt to load the config file
 	if it exists, and will load a default "failsafe" one if the file cannot be
 	opened. */
-	private function config ($cfgfile = './config.ini')
+	public function config ($cfgfile = './config.ini')
 	{
 		# default configuration in case the configuration file is missing
 		$defaults = array (
@@ -43,8 +43,6 @@ class ship
 			'temperature_crit' => 50,
 			'ignore_disk' => array(),
 		);
-		
-		#var_dump ($defaults);
 		
 		# check that we can access the file
 		if (!file_exists ($cfgfile) or !is_readable($cfgfile))
@@ -61,17 +59,20 @@ class ship
 			$cfg = parse_ini_file ($cfgfile, false);
 			
 			# second array takes precedent
-			$config = array_merge ($defaults, $cfg);
-			
-			return $config;
+			return array_merge ($defaults, $cfg);
 		}
 	}
 	
 	/* When initialized, the config variable should have the configuration in
-	it. Other things probably need to be done too, just not right now. */
+	it. Also checks if there's a procfs to make sure Ship will run properly. */
 	public function __construct ()
 	{
 		$this->config = $this->config();
+		
+		$supported_oses = array('Linux');
+		if (!in_array(PHP_OS, $supported_oses))
+			die ('Unfortunately, Ship is not supported on this platform ('.
+			PHP_OS.') yet.');
 	}
 	
 	/* The Ship class shoudln't be echo'd, but just in case it is, show the
@@ -113,6 +114,7 @@ class ship
 		$cmd = explode (' ', file_get_contents ('/proc/uptime'));
 		$seconds = round($cmd[0]);
 
+		# divide and mod instead of mktime (this is easier to use)
 		$secs = str_pad(intval($seconds % 60), 2, '0', STR_PAD_LEFT);
 		$mins = str_pad(intval($seconds / 60 % 60), 2, '0', STR_PAD_LEFT);
 		$hours = intval($seconds / 3600 % 24);
@@ -139,10 +141,9 @@ class ship
 			'load' => '',
 		);
 		
-		$proc =
-			explode (':', `cat /proc/cpuinfo | grep -i 'model name' | head -1`);
-		$cpu['model'] =
-			trim (str_replace (array ('(R)','(C)','(TM)', 'CPU'), '', $proc[1]));
+		# get information
+		$proc = explode (':', trim (`cat /proc/cpuinfo | grep -i 'model name' | head -1`));
+		$cpu['model'] = trim (str_replace (array ('(R)','(C)','(TM)', 'CPU'), '', $proc[1]));
 
 		$cpu['load'] = trim (`cat /proc/loadavg | awk '{ print $1, $2, $3 }'`);
 		
@@ -170,11 +171,14 @@ class ship
 		$proc = `cat /proc/meminfo | grep -E '^(MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree)' | sed -e 's/[kKMG]B//g'`;
 		
 		$step = array ();
+		# make the "Thingy: Value" syntax of the proc file into an array
 		foreach (explode ("\n", $proc) as $l)
 		{
 			@list ($key, $value) = explode (':', $l, 2);
 			if (!empty ($key) and !empty ($value)) $step[$key] = intval($value);
 		}
+		
+		# move the array into something easy to use
 		
 		$ram_free = $step['MemFree'] + $step['Buffers'] + $step['Cached'];
 		
@@ -310,13 +314,6 @@ class ship
 		return $disks;
 	}
 }
-?>
-<pre>
-<?php
-echo $s = new ship();
-print_r ($s->machine());
-print_r ($s->cpu());
-print_r ($s->ram());
-print_r ($s->hddtemp());
-print_r ($s->diskspace());
-?></pre>
+
+echo '<!-- Ship '.SHIP_VERSION.' backend OK -->';
+

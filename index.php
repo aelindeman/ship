@@ -1,190 +1,63 @@
 <?php
-# This PHP code here is now deprecated.
-define ('SHIP_VERSION', '2.0 (Intermediate Stage Pre-Alpha 3)');
+/**
+ * Ship 2.0 Frontend
+ *
+ * Frontend for Ship. This file is what is viewed by the end user. It gathers
+ * information from backend.php and makes it all nice and pretty for the user.
+ *
+ * Written and maintained by Alex Lindeman <aelindeman@gmail.com>
+ * License: Creative Commons Attribution-ShareAlike 3.0
+ *          (http://creativecommons.org/licenses/by-sa/3.0)
+*/
 
-$hn = trim(file_get_contents('/proc/sys/kernel/hostname'));
-$ip = trim($_SERVER['SERVER_ADDR']);
-$dn = trim(gethostbyaddr($_SERVER['SERVER_ADDR']));
-$os = trim(`lsb_release -d | cut -f2-`);
-$kv = trim(`uname -rm`);
+require_once ('./backend.php');
+$ship = new ship();
 
-# helpful function for rounding disk sizes
-# initial size must be in kB
-function sizeup ($size, $p = 1)
+# get all the modules and use small variable names for laziness
+$config = $ship->config();
+
+$ma = $ship->machine();
+$cp = $ship->cpu();
+$ra = $ship->ram();
+$ht = $ship->hddtemp();
+$df = $ship->diskspace();
+
+# prepare disk temperature table
+
+$hddtemp = '';
+foreach ($ship->hddtemp() as $d)
 {
-	$sizes = array('EB', 'PB', 'TB', 'GB', 'MB', 'kB');
-	$total = count($sizes);
-
-	while ($total-- && $size > 1024) $size /= 1024;
-	return sprintf ('%.'.$p.'f ', $size).$sizes[$total];
-}
-
-function typhoon_uptime()
-{
-	$cmd = explode (' ', file_get_contents ('/proc/uptime'));
-	$seconds = round($cmd[0]);
-
-	$secs = str_pad(intval($seconds % 60), 2, '0', STR_PAD_LEFT);
-	$mins = str_pad(intval($seconds / 60 % 60), 2, '0', STR_PAD_LEFT);
-	$hours = intval($seconds / 3600 % 24);
-	$days = intval($seconds / 86400);
-
-	$days = ($days == 0) ? '' : $days.'d ';
-
-	return "{$days}{$hours}:{$mins}";
-}
-
-$cpu_proc = explode(':', `cat /proc/cpuinfo | grep 'model name' | head -1`);
-$cpu = str_replace (array ('(R)','(C)','(TM)', 'CPU'), '', $cpu_proc[1]);
-
-$ld = trim(`cat /proc/loadavg | awk '{ print $1, $2, $3 }'`);
-
-function typhoon_ram_usage()
-{
-	$mem = `cat /proc/meminfo | grep -E '^(MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree)' | sed -e 's/[kKMG]B//g'`;
-
-	$proc = array ();
-	foreach (explode ("\n", $mem) as $l)
-	{
-		@list ($key, $value) = explode (':', $l, 2);
-		if (!empty ($key) and !empty ($value)) $proc[$key] = intval ($value);
-	}
-
-	$total = $proc['MemTotal'];
-	$free = $proc['MemFree'] + $proc['Buffers'] + $proc['Cached'];
-	$used = $total - $free;
-
-	$swap_total = $proc['SwapTotal'];
-	$swap_free = $proc['SwapFree'];
-	$swap_used = $swap_total - $swap_free;
-
-	$pct_used = round ($used / $total * 100);
-	$pct_swap_used = round ($swap_used / $swap_total * 100);
-
-	$total = sizeup ($total);
-	$free = sizeup ($free);
-	$used = sizeup ($used);
-
-	$swap_total = sizeup ($swap_total);
-	$swap_free = sizeup ($swap_free);
-	$swap_used = sizeup ($swap_used);
-
-	/*
-	return array (
-		'mem'	=> array ($total, $free, $used, $pct_used),
-		'swap'	=> array ($swap_total, $swap_free, $swap_used, $pct_swap_used),
-	);
-	*/
-
-	$status = 'ok'; # for future use
-
-	return <<<RAM
-<h2 class="ramheader">$total RAM</h2>
-<span>$used used (${pct_used}%)</span>
-<div class="meter container float {$status}">
-	<div class="meter fill {$status}" style="width:${pct_used}%">
-		<span class="pct">(${pct_used}% used)</span>
-	</div>
-</div>
-
-<h2 class="swapheader">$swap_total swap</h2>
-<span>$swap_used used (${pct_swap_used}%)</span>
-<div class="meter container float {$status}">
-	<div class="meter fill {$status}" style="width:${pct_swap_used}%">
-		<span class="pct">(${pct_swap_used}% used)</span>
-	</div>
-</div>
-RAM;
-}
-
-function typhoon_disk_temps()
-{
-	$sock = fsockopen ('127.0.0.1', 7634, $en, $em, 1);
-	$data = '';
-	while (($buffer = fgets ($sock, 512)) !== false)
-	{
-		$data .= $buffer;
-	}
-
-	# throw error if something happened
-	if (!feof ($sock)) throw new Exception ($em);
-	fclose ($sock);
-
-	$disks = array();
-
-	foreach (explode ('||', $data) as $d)
-	{
-		$c = explode('|', $d);
-
-		foreach ($c as $k=>$v)
-		{
-			if (empty ($v)) unset ($c[$k]);
-		}
-		$c = array_values($c);
-
-		$disks[] = $c;
-	}
-	# return $disks;
-
-	$r = '';
-	foreach ($disks as $d)
-	{
-		list ($dev, $model, $deg, $units) = $d;
-
-		if ($deg >= 40)
-		{
-			if ($deg >= 50) $status = 'crit';
-			else $status = 'warn';
-		}
-		else $status = 'ok';
-
-		$r .= <<<DISK
+	$di = (strtoupper($config['temperature_units']) != 'K') ? '&deg;' : ' ';
+	$hddtemp .= <<<DISK
 <tr>
-	<td class="dev">$dev</td>
-	<td class="model">$model</td>
-	<td class="temp ${status}"><span>${deg}&deg;${units}</span></td>
+	<td class="dev">${d['dev']}</td>
+	<td class="model">${d['model']}</td>
+	<td class="temp ${d['status']}"><span>${d['temp']}${di}${d['units']}</span></td>
 </tr>
 DISK;
-	}
-	return $r;
 }
 
-function typhoon_disk_space()
+# prepare disk space table
+
+$diskspace = '';
+foreach ($ship->diskspace() as $d)
 {
-	# Doesn't technically use procfs.
-	$proc = trim (`df -lPT --exclude=tmpfs | sed -e '1d'`);
-
-	$disks = array();
-	foreach (explode ("\n", $proc) as $d)
-	{
-		$disks[] = preg_split('/\s+/', $d, 7);
-	}
-
-	$r = '';
-	foreach ($disks as $d)
-	{
-		$total = sizeup ($d[2]);
-		$used = sizeup ($d[3]);
-		$free = sizeup ($d[4]);
-
-		$r .= <<<DISK
+	$diskspace .= <<<DISK
 <tr>
-	<td class="disk" title="${d[0]}">${d[6]}</td>
-	<td class="type">${d[1]}</td>
+	<td class="disk" title="${d['dev']}">${d['mount']}</td>
+	<td class="type">${d['type']}</td>
 	<td class="size">
-		$used of $total used
+		${d['used']} of ${d['total']} used
 		<div class="meter container">
-			<div class="meter fill" style="width:${d[5]}">
-				<span class="pct">(${d[5]} used)</span>
+			<div class="meter fill" style="width:${d['pctused']}">
+				<span class="pct">(${d['pctused']} used)</span>
 			</div>
 		</div>
 	</td>
 DISK;
-	}
-
-	return $r;
 }
-?>
+
+# end preparation PHP stuff, begin end-user-viewable main page code ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -197,8 +70,8 @@ DISK;
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="viewport" content="width=420, initial-scale=0.75, user-scalable=no" />
 
-		<title><?=$hn?> - Ship <?=SHIP_VERSION?></title>
-		<link rel="stylesheet" href="./css/default.css" type="text/css" />
+		<title><?=$ma['hostname'].' - Ship '.SHIP_VERSION; ?></title>
+		<link rel="stylesheet" href="./css/<?=$config['stylesheet']?>" type="text/css" />
 	</head>
 	<body>
 		<div id="wrapper">
@@ -207,18 +80,34 @@ DISK;
 					<span>Ship <?=SHIP_VERSION?></span>
 				</div>
 				<div id="machine">
-					<div class="hn"><h2><?=$hn?></h2></div>
-					<div class="ip"><?=$ip?><br /><?=$dn?></div>
-					<div class="os"><?=$os?></div>
-					<div class="kv"><?=$kv?></div>
-					<div class="up">Uptime: <?=typhoon_uptime()?></div>
+					<div class="hostname"><h2><?=$ma['hostname']?></h2></div>
+					<div class="os"><?=$ma['os']?><br /><?=$ma['kernel']?></div>
+					<div class="net"><?=$ma['ip']?><br /><?=$ma['domain']?></div>
+					<div class="uptime">Uptime: <?=$ma['uptime']?></div>
 				</div>
-				<div id="load">
-					<h2><?=$cpu?></h2>
-					<div class="load">Load average: <?=$ld?></div>
+				<div id="cpu">
+					<h2><?=$cp['model']?></h2>
+					<div class="load">Load average: <?=$cp['load']?></div>
 				</div>
-				<div id="ram">
-					<?=typhoon_ram_usage()?>
+				<div id="memory">
+					<div id="ram">
+						<h2 class="ramheader"><?=$ra['ram']['total']?> RAM</h2>
+						<span><?=$ra['ram']['used']?> used (<?=$ra['ram']['pctused']?>%)</span>
+						<div class="meter container float">
+							<div class="meter fill" style="width:<?=$ra['ram']['pctused']?>%">
+								<span class="pct">&nbsp;</span>
+							</div>
+						</div>
+					</div>
+					<div id="swap">
+						<h2 class="ramheader"><?=$ra['swap']['total']?> swap</h2>
+						<span><?=$ra['swap']['used']?> used (<?=$ra['swap']['pctused']?>%)</span>
+						<div class="meter container float">
+							<div class="meter fill" style="width:<?=$ra['swap']['pctused']?>%">
+								<span class="pct">&nbsp;</span>
+							</div>
+						</div>
+					</div>
 				</div>
 				<div id="temps">
 					<table>
@@ -227,7 +116,7 @@ DISK;
 							<th>Model</th>
 							<th></th>
 						</tr>
-						<?=typhoon_disk_temps()?>
+						<?=$hddtemp?>
 					</table>
 				</div>
 				<div id="diskspace">
@@ -237,7 +126,7 @@ DISK;
 							<th>Type</th>
 							<th></th>
 						</tr>
-						<?=typhoon_disk_space()?>
+						<?=$diskspace?>
 					</table>
 				</div>
 			</div>
