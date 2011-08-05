@@ -24,7 +24,6 @@ class ship
 	critical (which will die() the page). */
 	private $errors = array();
 	
-	
 	/* Ship configuration. Should be handled as read-only, since any changes
 	made here will not (and, at the moment, can not) be saved. It is filled in
 	later with the config function. */
@@ -40,9 +39,12 @@ class ship
 			'stylesheet' => 'default.css',
 			'uptime_display_sec' => false,
 			'temperature_units' => 'c',
-			'disk_temperature_warn' => 40,
-			'disk_temperature_warn' => 50,
+			'temperature_warn' => 40,
+			'temperature_crit' => 50,
+			'ignore_disk' => array(),
 		);
+		
+		#var_dump ($defaults);
 		
 		# check that we can access the file
 		if (!file_exists ($cfgfile) or !is_readable($cfgfile))
@@ -61,10 +63,22 @@ class ship
 			# second array takes precedent
 			$config = array_merge ($defaults, $cfg);
 			
-			# fill in the config variable and also return it
-			$this->config = $config;
 			return $config;
 		}
+	}
+	
+	/* When initialized, the config variable should have the configuration in
+	it. Other things probably need to be done too, just not right now. */
+	public function __construct ()
+	{
+		$this->config = $this->config();
+	}
+	
+	/* The Ship class shoudln't be echo'd, but just in case it is, show the
+	version number. */
+	public function __tostring ()
+	{
+		return 'Ship '.SHIP_VERSION;
 	}
 	
 	# Ship meta stuff ends - all modules are below
@@ -108,7 +122,7 @@ class ship
 		$days = ($days == 0) ? '' : $days.'d ';
 		
 		# check config if we are supposed to do seconds
-		$config = $this->config();
+		$config = $this->config;
 		if ($config['uptime_display_sec'])
 			$machine['uptime'] = "${days}${hours}:${mins}:${secs}";
 		else
@@ -240,11 +254,10 @@ class ship
 ?>
 <pre>
 <?php
-$s = new ship();
+echo $s = new ship();
 print_r ($s->machine());
 print_r ($s->cpu());
 print_r ($s->ram());
 print_r ($s->hddtemp());
 print_r ($s->diskspace());
-echo 'Ship '.SHIP_VERSION;
 ?></pre>
