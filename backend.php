@@ -97,8 +97,9 @@ class ship
 	}
 	
 	/* Machine information module. Displays hostname, domain name, IP address,
-	operating system information, and uptime. */
-	public function machine ()
+	operating system information, and uptime. Single parameter used for
+	returning ONLY THE UPTIME as total number of seconds up. */
+	public function machine ($uptime_raw = false)
 	{
 		# simple info stuff
 		$machine = array (
@@ -113,22 +114,26 @@ class ship
 		# uptime is a little more complicated
 		$cmd = explode (' ', file_get_contents ('/proc/uptime'));
 		$seconds = round($cmd[0]);
-
-		# divide and mod instead of mktime (this is easier to use)
-		$secs = str_pad(intval($seconds % 60), 2, '0', STR_PAD_LEFT);
-		$mins = str_pad(intval($seconds / 60 % 60), 2, '0', STR_PAD_LEFT);
-		$hours = intval($seconds / 3600 % 24);
-		$days = intval($seconds / 86400);
-
-		# only display days if we have to
-		$days = ($days == 0) ? '' : $days.'d ';
 		
-		# check config if we are supposed to do seconds
-		$config = $this->config;
-		if ($config['uptime_display_sec'])
-			$machine['uptime'] = "${days}${hours}:${mins}:${secs}";
+		if ($uptime_raw) return $seconds;
 		else
-			$machine['uptime'] = "${days}${hours}:${mins}";
+		{
+			# divide and mod instead of mktime (this is easier to use)
+			$secs = str_pad(intval($seconds % 60), 2, '0', STR_PAD_LEFT);
+			$mins = str_pad(intval($seconds / 60 % 60), 2, '0', STR_PAD_LEFT);
+			$hours = intval($seconds / 3600 % 24);
+			$days = intval($seconds / 86400);
+
+			# only display days if we have to
+			$days = ($days == 0) ? '' : $days.'d ';
+		
+			# check config if we are supposed to do seconds
+			$config = $this->config;
+			if ($config['uptime_display_sec'])
+				$machine['uptime'] = "${days}${hours}:${mins}:${secs}";
+			else
+				$machine['uptime'] = "${days}${hours}:${mins}";
+		}
 		
 		return $machine;
 	}
@@ -314,6 +319,4 @@ class ship
 		return $disks;
 	}
 }
-
-echo '<!-- Ship '.SHIP_VERSION.' backend OK -->';
 

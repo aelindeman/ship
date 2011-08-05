@@ -22,6 +22,8 @@ $ra = $ship->ram();
 $ht = $ship->hddtemp();
 $df = $ship->diskspace();
 
+$raw_ut = $ship->machine(true);
+
 # prepare disk temperature table
 
 $hddtemp = '';
@@ -34,6 +36,7 @@ foreach ($ship->hddtemp() as $d)
 	<td class="model">${d['model']}</td>
 	<td class="temp ${d['status']}"><span>${d['temp']}${di}${d['units']}</span></td>
 </tr>
+
 DISK;
 }
 
@@ -54,6 +57,8 @@ foreach ($ship->diskspace() as $d)
 			</div>
 		</div>
 	</td>
+</tr>
+
 DISK;
 }
 
@@ -72,6 +77,14 @@ DISK;
 
 		<title><?=$ma['hostname'].' - Ship '.SHIP_VERSION; ?></title>
 		<link rel="stylesheet" href="./css/<?=$config['stylesheet']?>" type="text/css" />
+		
+		<script type="text/javascript">
+		//<!--
+			var raw_uptime = <?=intval($raw_ut)?>;
+			var uptime_show_seconds = <?=$config['uptime_display_sec']?'true':'false'?>;
+		//-->
+		</script>
+		<script src="./ship.js" type="text/javascript"></script>
 	</head>
 	<body>
 		<div id="wrapper">
@@ -83,7 +96,7 @@ DISK;
 					<div class="hostname"><h2><?=$ma['hostname']?></h2></div>
 					<div class="os"><?=$ma['os']?><br /><?=$ma['kernel']?></div>
 					<div class="net"><?=$ma['ip']?><br /><?=$ma['domain']?></div>
-					<div class="uptime">Uptime: <?=$ma['uptime']?></div>
+					<div class="uptime" id="uptime">Uptime: <?=$ma['uptime']?></div>
 				</div>
 				<div id="cpu">
 					<h2><?=$cp['model']?></h2>
@@ -134,5 +147,6 @@ DISK;
 		<div id="footer">
 			Ship <?=SHIP_VERSION?> - <a href="http://ael.me/ship/">ael.me/ship</a>
 		</div>
+		<script type="text/javascript">animate_uptime()</script>
 	</body>
 </html>
