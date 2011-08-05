@@ -174,8 +174,8 @@ function typhoon_disk_space()
 	<td class="size">
 		$used of $total used
 		<div class="meter container">
-			<div class="meter fill" style="width:${d[5]}%">
-				<span class="pct">(${d[5]}% used)</span>
+			<div class="meter fill" style="width:${d[5]}">
+				<span class="pct">(${d[5]} used)</span>
 			</div>
 		</div>
 	</td>
