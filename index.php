@@ -1,5 +1,6 @@
 <?php
-define ('SHIP_VERSION', '2.0 (Consolidated Pre-Alpha 2)');
+# This PHP code here is now deprecated.
+define ('SHIP_VERSION', '2.0 (Intermediate Stage Pre-Alpha 3)');
 
 $hn = trim(file_get_contents('/proc/sys/kernel/hostname'));
 $ip = trim($_SERVER['SERVER_ADDR']);
