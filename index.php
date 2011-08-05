@@ -2,7 +2,7 @@
 define ('SHIP_VERSION', '2.0 (Consolidated Pre-Alpha 1)');
 
 $hn = trim(`uname -n`);
-$ip = trim(file_get_contents ('http://icanhazip.com/'));
+$ip = trim($_SERVER['SERVER_ADDR']);
 $dn = $_SERVER['SERVER_NAME'];
 $os = trim(file_get_contents ('/etc/issue.net'));
 $kv = trim(`uname -rm`);
@@ -190,186 +190,16 @@ DISK;
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 
+
 		<!-- iPhone meta tags -->
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="viewport" content="width=420, initial-scale=0.75, user-scalable=no" />
 
-
 		<title><?=$hn?> - Ship <?=SHIP_VERSION?></title>
-		<style type="text/css">
-@import "reset.css";
-body
-{
-	background-color: #EEE;
-	font: normal 12px "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
-	-webkit-text-size-adjust: none;
-}
-#wrapper {
-	margin: 10px auto;
-	width: 400px;
-}
 
-#header {
-	background: url('logo.png') no-repeat 10px 50%;
-	padding-left: 130px !important;
-	height: 40px;
-}
-#header span {
-	display: none;
-}
-
-#ship > div {
-	background-color: #FFF;
-	border: 1px solid #CCC;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	margin-bottom: 10px;
-	padding: 10px;
-}
-
-#machine .hn h2 {
-	background: transparent url('computer.png') no-repeat 100% 50%;
-	font-size: 18px;
-	font-weight: bold;
-	line-height: 24px;
-	margin: 0 0 5px 0;
-	padding-right: 32px;
-}
-#machine .ip {
-	float: right;
-	font-family: Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
-	text-align: right;
-}
-#machine .os, #machine .kv {
-	clear: left;
-	float: left;
-}
-#machine .up {
-	clear: both;
-	padding-top: 5px;
-}
-
-#load .cpu {
-	font-weight: bold;
-}
-
-h2.swapheader {
-	margin-top: 10px;
-}
-
-.meter {
-	border: 1px solid #246;
-	padding: 0 !important;
-	width: 200px;
-
-	border-radius: 2px;
-	-moz-border-radius: 2px;
-	-webkit-border-radius: 2px;
-}
-.meter.container.float {
-	clear: all;
-	float: right;
-	margin-top: 4px;
-}
-.meter.container {
-	background-color: #FFF;
-}
-.meter.fill {
-	background-color: #468;
-	border: none !important;
-	height: 6px !important;
-	float: none !important;
-
-	border-radius: 0;
-	-moz-border-radius: 0;
-	-webkit-border-radius: 0;
-}
-.meter .pct {
-	display: none;
-	float: right;
-}
-.meter.warn {
-	border-color: #C60;
-}
-.meter.warn.fill {
-	background-color: #F90;
-}
-.meter.crit {
-	border-color: #900;
-}
-.meter.crit.fill {
-	background-color: #C00;
-}
-
-#temps table {
-	width: 100%;
-}
-#temps th {
-	text-align: left;
-	line-height: 18px;
-}
-#temps td {
-	font: normal 12px Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
-	line-height: 18px;
-}
-#temps .temp {
-	text-align: right;
-}
-#temps .temp span {
-	display: inline-block;
-	padding: 0 2px;
-}
-#temps .temp.warn span {
-	background-color: #F90;
-	color: #FFF;
-}
-#temps .temp.crit span {
-	background-color: #F00;
-	color: #FFF;
-}
-
-#diskspace table {
-	width: 100%;
-}
-#diskspace th {
-	text-align: left;
-	line-height: 18px;
-}
-#diskspace td {
-	line-height: 16px;
-	padding: 3px 0 0 0;
-}
-#diskspace .disk {
-	width: 100px;
-	font-family: Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
-}
-#diskspace .type {
-	width: 80px;
-	font-family: Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
-}
-#diskspace .size {
-	width: 200px;
-}
-
-#footer {
-	width: 390px;
-	margin: 0 auto 10px auto;
-	font-size: 9px;
-	color: #A9A9A9;
-	text-align: right;
-}
-#footer a:link, #footer a:visited {
-	color: inherit;
-	text-decoration: none;
-}
-#footer a:hover {
-	text-decoration: underline;
-}
-
-		</style>
+		<link rel="stylesheet" href="default.css" type="text/css" />
 	</head>
 	<body>
 		<div id="wrapper">
