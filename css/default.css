@@ -111,8 +111,10 @@ h2.swapheader {
 	line-height: 18px;
 }
 #temps td {
-	font: normal 12px Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
 	line-height: 18px;
+}
+#temps .dev, #temps .model {	
+	font: normal 12px Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
 }
 #temps .temp {
 	text-align: right;
@@ -124,10 +126,12 @@ h2.swapheader {
 #temps .temp.warn span {
 	background-color: #F90;
 	color: #FFF;
+	font-weight: bold;
 }
 #temps .temp.crit span {
 	background-color: #F00;
 	color: #FFF;
+	font-weight: bold;
 }
 
 #diskspace table {
