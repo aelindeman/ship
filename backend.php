@@ -195,14 +195,14 @@ class ship
 	temperatures. Port can be changed with first parameter. */
 	public function hddtemp ($port = 7634)
 	{
+		# make sure we can connect first, then read
 		if ($sock = @fsockopen ('127.0.0.1', $port, $en, $em, 3))
 		{
 			$data = '';
-			while (($buffer = fgets ($sock, 512)) !== false)
+			while (($buffer = fgets ($sock, 1024)) !== false)
 			{
 				$data .= $buffer;
 			}
-
 			fclose ($sock);
 		}
 		else return 'Couldn\'t connect to the hddtemp daemon.';
@@ -213,13 +213,69 @@ class ship
 		{
 			$c = explode('|', $d);
 
+			# remove empty crap from the array
 			foreach ($c as $k=>$v)
 			{
 				if (empty ($v)) unset ($c[$k]);
 			}
 			$c = array_values($c);
-
-			$disks[] = $c;
+			
+			$units = strtoupper ($this->config['temperature_units']);
+			$temp = $c[2];
+		
+			# convoluted and awesome temperature convert-o-tron
+			switch (strtoupper ($c[3]))
+			{
+				case 'C':
+				{
+					if ($units == 'F')
+						$temp = round(1.8 * $temp + 32);
+					else if ($units == 'K')
+						$temp += 273;
+					else
+						$temp = $temp;
+					break;
+				}
+				case 'F':
+				{
+					if ($units == 'C')
+						$temp = round(($temp - 32) * 5/9);
+					else if ($units == 'K')
+						$temp = round((($temp - 32) * 5/9) + 273);
+					else
+						$temp = $temp;
+					break;
+				}
+				case 'K':
+				{
+					if ($units == 'C')
+						$temp -= 273;
+					else if ($units == 'F')
+						$temp = round((1.8 * $temp + 32) - 273);
+					else
+						$temp = $temp;
+					break;
+				}	
+			}
+			
+			# add status to the array to simplify things
+			if ($temp >= $this->config['temperature_warn'])
+			{
+				if ($temp >= $this->config['temperature_crit'])
+					$status = 'crit';
+				else
+					$status = 'warn';
+			} else
+				$status = 'ok';
+			
+			# we're still in that foreach loop - add the disk to the array
+			$disks[] = array (
+				'dev' => $c[0],
+				'model' => $c[1],
+				'temp' => $temp,
+				'units' => $units,
+				'status' => $status,
+			);
 		}
 		
 		return $disks;	
@@ -228,15 +284,18 @@ class ship
 	/* Shows mountpoints' capacity and space remaining. */
 	public function diskspace ()
 	{
-		$config = 
-		
 		$proc = trim (`df -lkPT -x tmpfs | sed -e '1d'`);
 
 		$disks = array();
 		foreach (explode ("\n", $proc) as $d)
 		{
 			$dvals = preg_split('/\s+/', $d, 7);
+			
+			# honor config ignore_disk settings
+			if (in_array ($dvals[6], $this->config['ignore_disk']))
+				continue;
 		
+			# add key names to the array
 			$disks[] = array (
 				'dev' => $dvals[0],
 				'type' => $dvals[1],
