@@ -1,10 +1,10 @@
 <?php
-define ('SHIP_VERSION', '2.0 (Consolidated Pre-Alpha 1)');
+define ('SHIP_VERSION', '2.0 (Consolidated Pre-Alpha 2)');
 
-$hn = trim(`uname -n`);
+$hn = trim(file_get_contents('/proc/sys/kernel/hostname'));
 $ip = trim($_SERVER['SERVER_ADDR']);
-$dn = $_SERVER['SERVER_NAME'];
-$os = trim(file_get_contents ('/etc/issue.net'));
+$dn = trim(gethostbyaddr($_SERVER['SERVER_ADDR']));
+$os = trim(`lsb_release -d | cut -f2-`);
 $kv = trim(`uname -rm`);
 
 # helpful function for rounding disk sizes
@@ -32,7 +32,6 @@ function typhoon_uptime()
 
 	return "{$days}{$hours}:{$mins}";
 }
-$ut = typhoon_uptime();
 
 $cpu_proc = explode(':', `cat /proc/cpuinfo | grep 'model name' | head -1`);
 $cpu = str_replace (array ('(R)','(C)','(TM)', 'CPU'), '', $cpu_proc[1]);
@@ -188,18 +187,17 @@ DISK;
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 		<!-- iPhone meta tags -->
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<link rel="apple-touch-icon" href="./img/iphone-icon.png" />
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="viewport" content="width=420, initial-scale=0.75, user-scalable=no" />
 
 		<title><?=$hn?> - Ship <?=SHIP_VERSION?></title>
-
-		<link rel="stylesheet" href="default.css" type="text/css" />
+		<link rel="stylesheet" href="./css/default.css" type="text/css" />
 	</head>
 	<body>
 		<div id="wrapper">
@@ -212,7 +210,7 @@ DISK;
 					<div class="ip"><?=$ip?><br /><?=$dn?></div>
 					<div class="os"><?=$os?></div>
 					<div class="kv"><?=$kv?></div>
-					<div class="up">Uptime: <?=$ut?></div>
+					<div class="up">Uptime: <?=typhoon_uptime()?></div>
 				</div>
 				<div id="load">
 					<h2><?=$cpu?></h2>
