@@ -48,9 +48,9 @@ foreach ($ship->diskspace() as $d)
 	<td class="type">${d['type']}</td>
 	<td class="size">
 		${d['used']} of ${d['total']} used
-		<div class="meter container">
+		<div class="meter container" title="${d['pctused']} used">
 			<div class="meter fill" style="width:${d['pctused']}">
-				<span class="pct">(${d['pctused']} used)</span>
+				<span class="pct">&nbsp;</span>
 			</div>
 		</div>
 	</td>
