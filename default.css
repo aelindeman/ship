@@ -66,6 +66,10 @@ h2.swapheader {
 	-moz-border-radius: 2px;
 	-webkit-border-radius: 2px;
 }
+.meter.float {
+	float: right;
+	margin-top: 3px;
+}
 .meter.container {
 	background-color: #FFF;
 }

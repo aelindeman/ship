@@ -80,7 +80,7 @@ function typhoon_ram_usage()
 
 	return <<<RAM
 <h2 class="ramheader">$total RAM</h2>
-<p>$used used (${pct_used}%)</p>
+<span>$used used (${pct_used}%)</span>
 <div class="meter container float {$status}">
 	<div class="meter fill {$status}" style="width:${pct_used}%">
 		<span class="pct">(${pct_used}% used)</span>
@@ -88,7 +88,7 @@ function typhoon_ram_usage()
 </div>
 
 <h2 class="swapheader">$swap_total swap</h2>
-<p>$swap_used used (${pct_swap_used}%)</p>
+<span>$swap_used used (${pct_swap_used}%)</span>
 <div class="meter container float {$status}">
 	<div class="meter fill {$status}" style="width:${pct_swap_used}%">
 		<span class="pct">(${pct_swap_used}% used)</span>
