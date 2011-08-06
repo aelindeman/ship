@@ -38,9 +38,9 @@ function update_load()
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function()
 	{
-		if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+		if (this.readyState == 4 && this.status == 200)
 		{
-			var json = JSON.parse(xmlhttp.responseText);
+			var json = JSON.parse(this.responseText);
 			document.getElementById("load").innerHTML = prefix + json.load;
 		}
 	}
@@ -55,9 +55,9 @@ function update_ram()
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function()
 	{
-		if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+		if (this.readyState == 4 && this.status == 200)
 		{
-			var json = JSON.parse(xmlhttp.responseText);
+			var json = JSON.parse(this.responseText);
 			document.getElementById("ram_used").innerHTML = json.ram.used + " used (" + json.ram.pctused + "%)";
 			document.getElementById("ram_used_meter").style.width = json.ram.pctused + "%";
 			document.getElementById("swap_used").innerHTML = json.swap.used + " used (" + json.swap.pctused + "%)";
