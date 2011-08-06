@@ -156,7 +156,7 @@ DISK;
 		//<!--
 			animate_uptime();
 			update_load();
-			update_ram();
+			setTimeout("update_ram()", 500);
 		//-->
 		</script>
 	</body>
