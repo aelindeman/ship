@@ -22,6 +22,7 @@ $ra = $ship->ram();
 $ht = $ship->hddtemp();
 $df = $ship->diskspace();
 
+$rr = $config['refresh_rate'];
 $raw_ut = $ship->machine(true);
 
 # prepare disk temperature table
@@ -61,12 +62,12 @@ foreach ($ship->diskspace() as $d)
 
 DISK;
 }
-
-# end preparation PHP stuff, begin end-user-viewable main page code ?>
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="description" content="Ship <?=SHIP_VERSION?> - Simple hardware information for Linux" />
 
 		<!-- iPhone meta tags -->
 		<meta name="apple-mobile-web-app-capable" content="yes" />
@@ -78,13 +79,16 @@ DISK;
 		<title><?=$ma['hostname'].' - Ship '.SHIP_VERSION; ?></title>
 		<link rel="stylesheet" href="./css/<?=$config['stylesheet']?>" type="text/css" />
 		
+		<!-- initialize some variables for scripts -->
 		<script type="text/javascript">
 		//<!--
+			var refresh_rate = <?=intval($rr) * 1000 ?>;
 			var raw_uptime = <?=intval($raw_ut)?>;
 			var uptime_show_seconds = <?=$config['uptime_display_sec']?'true':'false'?>;
 		//-->
 		</script>
 		<script src="./ship.js" type="text/javascript"></script>
+		
 	</head>
 	<body>
 		<div id="wrapper">
@@ -100,23 +104,23 @@ DISK;
 				</div>
 				<div id="cpu">
 					<h2><?=$cp['model']?></h2>
-					<div class="load">Load average: <?=$cp['load']?></div>
+					<div class="load" id="load">Load average: <?=$cp['load']?></div>
 				</div>
 				<div id="memory">
 					<div id="ram">
 						<h2 class="ramheader"><?=$ra['ram']['total']?> RAM</h2>
-						<span><?=$ra['ram']['used']?> used (<?=$ra['ram']['pctused']?>%)</span>
+						<span id="ram_used"><?=$ra['ram']['used']?> used (<?=$ra['ram']['pctused']?>%)</span>
 						<div class="meter container float">
-							<div class="meter fill" style="width:<?=$ra['ram']['pctused']?>%">
+							<div id="ram_used_meter" class="meter fill" style="width:<?=$ra['ram']['pctused']?>%">
 								<span class="pct">&nbsp;</span>
 							</div>
 						</div>
 					</div>
 					<div id="swap">
 						<h2 class="ramheader"><?=$ra['swap']['total']?> swap</h2>
-						<span><?=$ra['swap']['used']?> used (<?=$ra['swap']['pctused']?>%)</span>
+						<span id="swap_used"><?=$ra['swap']['used']?> used (<?=$ra['swap']['pctused']?>%)</span>
 						<div class="meter container float">
-							<div class="meter fill" style="width:<?=$ra['swap']['pctused']?>%">
+							<div id="swap_used_meter" class="meter fill" style="width:<?=$ra['swap']['pctused']?>%">
 								<span class="pct">&nbsp;</span>
 							</div>
 						</div>
@@ -147,6 +151,13 @@ DISK;
 		<div id="footer">
 			Ship <?=SHIP_VERSION?> - <a href="http://ael.me/ship/">ael.me/ship</a>
 		</div>
-		<script type="text/javascript">animate_uptime()</script>
+		<!-- scripts -->
+		<script type="text/javascript">
+		//<!--
+			animate_uptime();
+			update_load();
+			update_ram();
+		//-->
+		</script>
 	</body>
 </html>

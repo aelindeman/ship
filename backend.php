@@ -11,7 +11,7 @@
  *          (http://creativecommons.org/licenses/by-sa/3.0)
 */
 
-define ('SHIP_VERSION', '2.0 alpha 3'); 
+define ('SHIP_VERSION', '2.0 alpha 4'); 
 
 class ship
 {
@@ -37,6 +37,7 @@ class ship
 		# default configuration in case the configuration file is missing
 		$defaults = array (
 			'stylesheet' => 'default.css',
+			'refresh_rate' => 5,
 			'uptime_display_sec' => false,
 			'temperature_units' => 'c',
 			'temperature_warn' => 40,
@@ -318,5 +319,18 @@ class ship
 		
 		return $disks;
 	}
+}
+
+/* Accomodates AJAX requests to the page. The "q" parameter in the URL specifies the function. The data
+is returned in a JSON array. */
+if (!empty ($_GET['q']))
+{
+	$ship = new ship();
+	$config = $ship->config();
+
+	$query = $_GET['q'];
+	$data = $ship->$query();
+	
+	exit (json_encode($data));
 }
 
