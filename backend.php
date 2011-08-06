@@ -11,7 +11,11 @@
  *          (http://creativecommons.org/licenses/by-sa/3.0)
 */
 
-define ('SHIP_VERSION', '2.0 alpha 4'); 
+define ('SHIP_VERSION', '2.0 alpha 4');
+
+# Disable caching
+header ("Cache-Control: no-cache, must-revalidate");
+header ("Expires: Thu, 1 Jan 1970 00:00:00 GMT");
 
 class ship
 {
