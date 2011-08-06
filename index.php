@@ -11,7 +11,7 @@
 */
 
 require_once ('./backend.php');
-$ship = new ship();
+$ship = new Ship();
 
 # get all the modules and use small variable names for laziness
 $config = $ship->config();
@@ -62,6 +62,14 @@ foreach ($ship->diskspace() as $d)
 
 DISK;
 }
+
+if ($ship->errors())
+{
+	foreach ($ship->errors() as $e)
+	{
+		if ($e[1] >= 2) die ($e[0]);
+	}
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -91,6 +99,18 @@ DISK;
 		
 	</head>
 	<body>
+		<?php if ($errors = $ship->errors()) { ?>
+		<ul id="errors">
+			<?php
+			foreach ($errors as $e)
+				if ($e[1] > 0 or $config['show_all_errors'])
+				{
+					$severity = strtr ($e[1], array ('0' => 'info', '1' => 'warn', '2' => 'crit'));
+					echo '<li class="'.$severity.'">'.$e[0].'</li>';
+				}
+			?>
+		</ul>
+		<?php } ?>
 		<div id="wrapper">
 			<div id="ship">
 				<div id="header">
@@ -126,6 +146,7 @@ DISK;
 						</div>
 					</div>
 				</div>
+				<?php if (!empty ($ht)) { ?>
 				<div id="temps">
 					<table>
 						<tr class="header">
@@ -136,6 +157,7 @@ DISK;
 						<?=$hddtemp?>
 					</table>
 				</div>
+				<?php } ?>
 				<div id="diskspace">
 					<table>
 						<tr class="header">

@@ -11,7 +11,7 @@
  *          (http://creativecommons.org/licenses/by-sa/3.0)
 */
 
-define ('SHIP_VERSION', '2.0 alpha 4');
+define ('SHIP_VERSION', '2.0 alpha 6');
 
 # Disable caching
 header ("Cache-Control: no-cache, must-revalidate");
@@ -24,14 +24,34 @@ class ship
 	/* Error reporter variable. This tells the main Ship page if there were any
 	errors rendering the page. Each message should be an additional array, with
 	[0] as the message and [1] as the severity level: 0 for info, 1 for warning
-	(which will display the message but not halt the page), and 2 or higher for
-	critical (which will die() the page). */
-	private $errors = array();
+	(which will display the message but not halt the page), and 2 for critical
+	(which will die() the page). */
+	protected $errors = array();
+	
+	/* Returns the array of errors. */
+	public function errors ()
+	{
+		return $this->errors;
+	}
+	
+	/* Adds an error to the error array. While this could be done directly, this
+	is shorter and prevents duplicate errors. Returns true if the error was
+	added to the array (the inverse of if there was a duplicate). */
+	public function add_error ($errstr, $severity = 1)
+	{
+		$error = array ($errstr, intval($severity));
+		if (!in_array ($error, $this->errors))
+		{
+			$this->errors[] = $error;
+			return true;
+		}
+		return false;
+	}
 	
 	/* Ship configuration. Should be handled as read-only, since any changes
 	made here will not (and, at the moment, can not) be saved. It is filled in
-	later with the config function. This should be used only in this file. */
-	private $config = array();
+	during __construct() with the config() function. */
+	protected $config = array();
 	
 	/* Configuration loader function. This will attempt to load the config file
 	if it exists, and will load a default "failsafe" one if the file cannot be
@@ -42,7 +62,8 @@ class ship
 		$defaults = array (
 			'stylesheet' => 'default.css',
 			'refresh_rate' => 5,
-			'uptime_display_sec' => false,
+			'show_all_errors' => false,
+			'uptime_display_sec' => true,
 			'temperature_units' => 'c',
 			'temperature_warn' => 40,
 			'temperature_crit' => 50,
@@ -52,11 +73,11 @@ class ship
 		# check that we can access the file
 		if (!file_exists ($cfgfile) or !is_readable($cfgfile))
 		{
-			$this->errors[] = array ('The default configuration has been loaded
+			$this->add_error ('The default configuration has been loaded
 			because the normal Ship configuration file ('.$cfgfile.') is
 			missing or cannot be read by your web server. Check that it is in
 			the proper location and change its permissions so that "others" can
-			read it.', 1);
+			read it.');
 			return $defaults;
 		}
 		else
@@ -69,15 +90,17 @@ class ship
 	}
 	
 	/* When initialized, the config variable should have the configuration in
-	it. Also checks if there's a procfs to make sure Ship will run properly. */
+	it. Also checks if Ship is running on a valid operating system. */
 	public function __construct ()
 	{
 		$this->config = $this->config();
 		
 		$supported_oses = array('Linux');
 		if (!in_array(PHP_OS, $supported_oses))
-			die ('Unfortunately, Ship is not supported on this platform ('.
-			PHP_OS.') yet.');
+		{
+			$this->add_error ('Unfortunately, Ship is not supported on this
+			platform ('.PHP_OS.') yet.', 2);
+		}
 	}
 	
 	/* The Ship class shoudln't be echo'd, but just in case it is, show the
@@ -206,11 +229,11 @@ class ship
 	}
 	
 	/* Shows what the hddtemp daemon has to say about disks and their
-	temperatures. Port can be changed with first parameter. */
-	public function hddtemp ($port = 7634)
+	temperatures. */
+	public function hddtemp ()
 	{
 		# make sure we can connect first, then read
-		if ($sock = @fsockopen ('127.0.0.1', $port, $en, $em, 3))
+		if ($sock = @fsockopen ('127.0.0.1', 7634, $en, $em, 3))
 		{
 			$data = '';
 			while (($buffer = fgets ($sock, 1024)) !== false)
@@ -219,10 +242,15 @@ class ship
 			}
 			fclose ($sock);
 		}
-		else return 'Couldn\'t connect to the hddtemp daemon.';
+		else # couldn't connect
+		{
+			$this->add_error ('Ship could not connect to the hddtemp daemon on
+			port 7634. Check that hddtemp is installed and running. Hard disk
+			temperature information will not be available.', 1);
+			return array();
+		}
 
 		$disks = array();
-
 		foreach (explode ('||', $data) as $d)
 		{
 			$c = explode('|', $d);
@@ -272,7 +300,7 @@ class ship
 				}	
 			}
 			
-			# add status to the array to simplify things
+			# add status to the array
 			if ($temp >= $this->config['temperature_warn'])
 			{
 				if ($temp >= $this->config['temperature_crit'])
@@ -325,8 +353,8 @@ class ship
 	}
 }
 
-/* Accomodates AJAX requests to the page. The "q" parameter in the URL specifies the function. The data
-is returned in a JSON array. */
+/* Accomodates AJAX requests to the page. The "q" parameter in the URL specifies
+the function. The data is returned in a JSON array. */
 if (!empty ($_GET['q']))
 {
 	$ship = new ship();
@@ -334,6 +362,9 @@ if (!empty ($_GET['q']))
 
 	$query = $_GET['q'];
 	$data = $ship->$query();
+	
+	# still show errors, but ignore them unless they are critical
+	if ($errors = $ship->errors() and $errors[0][1] > 1) die ($errors[0][0]);
 	
 	exit (json_encode($data));
 }

@@ -11,6 +11,29 @@ body {
 	width: 400px;
 }
 
+#errors {
+	margin: 0 auto;
+	padding: 0;
+	width: 400px;
+}
+#errors li {
+	background-color: #400;
+	border: 1px solid #700;
+	color: #FFF;
+	display: block;
+	font-size: 10px;
+	margin: 10px auto;
+	padding: 8px;
+	text-align: justify;
+}
+#errors li.warn {
+	background-color: #430;
+	border-color: #640;
+}
+#errors li.info {
+	background-color: #444;
+	border-color: #666;
+}
 #header {
 	background: url('../img/logo-white.png') no-repeat 10px 50%;
 	padding-left: 130px !important;
