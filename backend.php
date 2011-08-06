@@ -110,7 +110,7 @@ class Ship
 		return 'Ship '.SHIP_VERSION;
 	}
 	
-	# Ship meta stuff ends - all modules are below
+	# Ship meta stuff ends - Ship module shared helper functions below
 	
 	/* Module helper function for calculating human-readable size of disks and
 	such. First argument takes an integer of kB, second is how many decimal
@@ -123,6 +123,8 @@ class Ship
 		while ($total-- && $kb > 1024) $kb /= 1024;
 		return sprintf ('%.'.$p.'f ', $kb).$sizes[$total];
 	}
+	
+	# Helper functions ends - Ship modules below
 	
 	/* Machine information module. Displays hostname, domain name, IP address,
 	operating system information, and uptime. Single parameter used for

@@ -27,8 +27,8 @@ body {
 	text-align: justify;
 }
 #errors li.warn {
-	background-color: #430;
-	border-color: #640;
+	background-color: #440;
+	border-color: #660;
 }
 #errors li.info {
 	background-color: #444;
@@ -121,12 +121,11 @@ body {
 	padding: 0 2px;
 }
 #temps .temp.warn span {
+	background-color: #440;
 	font-weight: bold;
-	text-decoration: underline;
 }
 #temps .temp.crit span {
-	background-color: #BBB;
-	color: #000;
+	background-color: #444;
 	font-weight: bold;
 }
 
