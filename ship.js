@@ -35,7 +35,7 @@ function update_load()
 {
 	var prefix = "Load average: ";
 	
-	xmlhttp = new XMLHttpRequest();
+	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function()
 	{
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
@@ -52,7 +52,7 @@ function update_load()
 
 function update_ram()
 {
-	xmlhttp = new XMLHttpRequest();
+	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function()
 	{
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
