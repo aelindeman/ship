@@ -1,6 +1,6 @@
 @import "reset.css";
-body
-{
+
+body {
 	background-color: #EEE;
 	font: normal 12px "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
 	-webkit-text-size-adjust: none;
