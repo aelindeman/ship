@@ -40,14 +40,11 @@ function update_load()
 	{
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
 		{
-			var json = JSON.parse (xmlhttp.responseText);
-			if (json != undefined)
-			{
-				document.getElementById("load").innerHTML = prefix + json.load;
-			}
+			var json = JSON.parse(xmlhttp.responseText);
+			document.getElementById("load").innerHTML = prefix + json.load;
 		}
 	}
-	xmlhttp.open("GET", "backend.php?q=cpu", true);
+	xmlhttp.open("GET", "./backend.php?q=cpu", true);
 	xmlhttp.send();
 	
 	setTimeout ("update_load()", refresh_rate);
@@ -60,18 +57,14 @@ function update_ram()
 	{
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
 		{
-			var json = JSON.parse (xmlhttp.responseText);
-			
-			if (json != undefined)
-			{
-				document.getElementById("ram_used").innerHTML = json.ram.used + " used (" + json.ram.pctused + "%)";
-				document.getElementById("ram_used_meter").style.width = json.ram.pctused + "%";
-				document.getElementById("swap_used").innerHTML = json.swap.used + " used (" + json.swap.pctused + "%)";
-				document.getElementById("swap_used_meter").style.width = json.swap.pctused + "%";
-			}
+			var json = JSON.parse(xmlhttp.responseText);
+			document.getElementById("ram_used").innerHTML = json.ram.used + " used (" + json.ram.pctused + "%)";
+			document.getElementById("ram_used_meter").style.width = json.ram.pctused + "%";
+			document.getElementById("swap_used").innerHTML = json.swap.used + " used (" + json.swap.pctused + "%)";
+			document.getElementById("swap_used_meter").style.width = json.swap.pctused + "%";
 		}
 	}
-	xmlhttp.open("GET", "backend.php?q=ram", true);
+	xmlhttp.open("GET", "./backend.php?q=ram", true);
 	xmlhttp.send();
 	
 	setTimeout ("update_ram()", refresh_rate);
