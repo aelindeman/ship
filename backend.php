@@ -17,7 +17,7 @@ define ('SHIP_VERSION', '2.0 alpha 6');
 header ("Cache-Control: no-cache, must-revalidate");
 header ("Expires: Thu, 1 Jan 1970 00:00:00 GMT");
 
-class ship
+class Ship
 {
 	# Ship meta stuff
 
@@ -357,7 +357,7 @@ class ship
 the function. The data is returned in a JSON array. */
 if (!empty ($_GET['q']))
 {
-	$ship = new ship();
+	$ship = new Ship();
 	$config = $ship->config();
 
 	$query = $_GET['q'];
