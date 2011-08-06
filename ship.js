@@ -65,7 +65,7 @@ function update_ram()
 		}
 	}
 	xmlhttp.open("GET", "./backend.php?q=ram", true);
-	xmlhttp.send();
+	setTimeout ("xmlhttp.send()", 500);
 	
 	setTimeout ("update_ram()", refresh_rate);
 }
