@@ -90,7 +90,7 @@ body {
 }
 .meter.float {
 	float: right;
-	margin-top: 3px;
+	margin-top: 4px;
 }
 .meter.container {
 	background-color: #FFF;
@@ -122,13 +122,18 @@ body {
 	background-color: #C00;
 }
 
-#temps table {
-	width: 100%;
+#processes #top .pid{
+	width: 75px;
 }
-#temps th {
-	text-align: left;
-	line-height: 18px;
+#processes #top .cpu, #processes #top .ram {
+	width: 50px;
+	text-align: right;
 }
+#processes #top td {
+	font-size: 11px;
+	line-height: 12px;
+}
+
 #temps td {
 	line-height: 18px;
 }
@@ -153,17 +158,6 @@ body {
 	font-weight: bold;
 }
 
-#diskspace table {
-	width: 100%;
-}
-#diskspace th {
-	text-align: left;
-	line-height: 18px;
-}
-#diskspace td {
-	line-height: 16px;
-	padding: 3px 0 0 0;
-}
 #diskspace .disk {
 	width: 120px;
 	font-family: Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
@@ -189,4 +183,17 @@ body {
 }
 #footer a:hover {
 	text-decoration: underline;
+}
+
+/* generic rules for tables */
+table {
+	width: 100%;
+}
+th {
+	text-align: left;
+	line-height: 18px;
+}
+td {
+	line-height: 16px;
+	padding: 3px 0 0 0;
 }

@@ -25,10 +25,25 @@ $df = $ship->diskspace();
 $rr = $config['refresh_rate'];
 $raw_ut = $ship->machine(true);
 
+# prepare process list table
+
+$pslist = '';
+foreach ($cp['processes'] as $p)
+{
+	$pslist .= <<<PS
+<tr>
+	<td class="pid">${p['pid']}</td>
+	<td class="name">${p['process']}</td>
+	<td class="cpu">${p['cpu']}</td>
+	<td class="ram">${p['ram']}</td>
+</tr>
+PS;
+}
+
 # prepare disk temperature table
 
 $hddtemp = '';
-foreach ($ship->hddtemp() as $d)
+foreach ($ht as $d)
 {
 	$di = (strtoupper($config['temperature_units']) != 'K') ? '&deg;' : ' ';
 	$hddtemp .= <<<DISK
@@ -44,7 +59,7 @@ DISK;
 # prepare disk space table
 
 $diskspace = '';
-foreach ($ship->diskspace() as $d)
+foreach ($df as $d)
 {
 	$diskspace .= <<<DISK
 <tr>
@@ -146,15 +161,34 @@ if ($ship->errors())
 						</div>
 					</div>
 				</div>
+				<div id="processes">
+					<table id="top">
+						<thead>
+							<tr>
+								<th class="pid">PID</th>
+								<th class="name">Name</th>
+								<th class="cpu">% CPU</th>
+								<th class="ram">RAM</th>
+							</tr>
+						</thead>
+						<tbody id="pslist">
+							<?=$pslist?>
+						</tbody>
+					</table>
+				</div>
 				<?php if (!empty ($ht)) { ?>
 				<div id="temps">
 					<table>
-						<tr class="header">
-							<th>Disk</th>
-							<th>Model</th>
-							<th></th>
-						</tr>
-						<?=$hddtemp?>
+						<thead>
+							<tr class="header">
+								<th>Disk</th>
+								<th>Model</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody id="hddt">
+							<?=$hddtemp?>
+						</tbody>
 					</table>
 				</div>
 				<?php } ?>

@@ -27,10 +27,12 @@ function animate_uptime()
 	setTimeout ("animate_uptime()", 1000);
 }
 
-/* update_load() and update_ram() involve AJAX requests to the Ship backend,
-which supplies JSON which is parsed by the browser's native JSON parser (many
-advantages, though it may not work in older browers, which need to refresh the
-page to see changes other than the uptime). */
+/* update_xyz() functions involve AJAX requests to the Ship backend, which
+supplies JSON which is parsed by the browser's native JSON parser (has many
+advantages, though it may not work in older browers). */
+
+/* update_load() also updates the top processes list, since they are both in the
+same section in the backend */
 function update_load()
 {
 	var prefix = "Load average: ";
@@ -42,6 +44,20 @@ function update_load()
 		{
 			var json = JSON.parse(this.responseText);
 			document.getElementById("load").innerHTML = prefix + json.load;
+			
+			document.getElementById("pslist").innerHTML = "";
+			
+			var processes = json.processes;
+			for (var i = 0; i < processes.length; i++)
+			{
+				var p = processes[i];
+				
+				var row = "<tr><td class='pid'>" + p["pid"] + "</td>" +
+					"<td class='name'>" + p["process"] + "</td>" +
+					"<td class='cpu'>" + p["cpu"] + "</td>" +
+					"<td class='ram'>" + p["ram"] + "</td></tr>";
+				document.getElementById("pslist").innerHTML += row;
+			}
 		}
 	}
 	xmlhttp.open("GET", "./backend.php?q=cpu", true);
@@ -69,3 +85,4 @@ function update_ram()
 	
 	setTimeout ("update_ram()", refresh_rate);
 }
+

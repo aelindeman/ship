@@ -11,7 +11,7 @@
  *          (http://creativecommons.org/licenses/by-sa/3.0)
 */
 
-define ('SHIP_VERSION', '2.0 alpha 6');
+define ('SHIP_VERSION', '2.0 alpha 7');
 
 # Disable caching
 header ("Cache-Control: no-cache, must-revalidate");
@@ -64,6 +64,7 @@ class Ship
 			'refresh_rate' => 5,
 			'show_all_errors' => false,
 			'uptime_display_sec' => true,
+			'number_of_top_processes' => 5,
 			'temperature_units' => 'c',
 			'temperature_warn' => 40,
 			'temperature_crit' => 50,
@@ -168,8 +169,9 @@ class Ship
 		return $machine;
 	}
 	
-	/* Displays information about the CPU and load average. */
-	public function cpu ()
+	/* Displays information about the CPU and load average. $num_procs parameter
+	is number*/
+	public function cpu ($num_procs = 5)
 	{
 		$cpu = array (
 			'model' => '',
@@ -181,6 +183,28 @@ class Ship
 		$cpu['model'] = trim (str_replace (array ('(R)','(C)','(TM)', 'CPU'), '', $proc[1]));
 
 		$cpu['load'] = trim (`cat /proc/loadavg | awk '{ print $1, $2, $3 }'`);
+				
+		# get process list, delete header line, reverse sort
+		$top = trim (`ps -e -o pmem,pcpu,pid,comm --sort pmem | sed -e '1d' | sort -r`);
+		
+		# count to trim the array
+		$count = 0;
+		foreach (explode ("\n", $top) as $p)
+		{
+			$split = preg_split ('/\s+/', $p, 4, PREG_SPLIT_NO_EMPTY);
+			
+			$process = array (
+				'pid' => $split[2],
+				'process' => $split[3],
+				'cpu' => $split[1],
+				'ram' => $split[0],
+			);
+			
+			$cpu['processes'][] = $process;
+			
+			$count ++;
+			if ($count == $num_procs) break;
+		}
 		
 		return $cpu;
 	}
