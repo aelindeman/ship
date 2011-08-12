@@ -178,9 +178,10 @@ class Ship
 			'load' => '',
 		);
 		
-		# get information
+		# get CPU information
 		$proc = explode (':', trim (`cat /proc/cpuinfo | grep -i 'model name' | head -1`));
-		$cpu['model'] = trim (str_replace (array ('(R)','(C)','(TM)', 'CPU'), '', $proc[1]));
+		# remove unnecessary words
+		$cpu['model'] = trim (str_ireplace (array ('(R)','(C)','(TM)', 'CPU', 'processor'), '', $proc[1]));
 
 		$cpu['load'] = trim (`cat /proc/loadavg | awk '{ print $1, $2, $3 }'`);
 				
