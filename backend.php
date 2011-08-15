@@ -64,7 +64,6 @@ class Ship
 			'refresh_rate' => 5,
 			'show_all_errors' => false,
 			'uptime_display_sec' => true,
-			'number_of_top_processes' => 5,
 			'temperature_units' => 'c',
 			'temperature_warn' => 40,
 			'temperature_crit' => 50,
