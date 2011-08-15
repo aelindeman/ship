@@ -17,7 +17,7 @@ $ship = new Ship();
 $config = $ship->config();
 
 $ma = $ship->machine();
-$cp = $ship->cpu($config['number_of_top_processes']);
+$cp = $ship->cpu();
 $ra = $ship->ram();
 $ht = $ship->hddtemp();
 $df = $ship->diskspace();

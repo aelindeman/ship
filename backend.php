@@ -168,9 +168,8 @@ class Ship
 		return $machine;
 	}
 	
-	/* Displays information about the CPU and load average. $num_procs parameter
-	is number of processes to display */
-	public function cpu ($num_procs = 5)
+	/* Displays information about the CPU and load average. */
+	public function cpu ()
 	{
 		$cpu = array (
 			'model' => '',
