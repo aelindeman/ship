@@ -122,18 +122,6 @@ body {
 	background-color: #C00;
 }
 
-#processes #top .pid{
-	width: 75px;
-}
-#processes #top .cpu, #processes #top .ram {
-	width: 50px;
-	text-align: right;
-}
-#processes #top td {
-	font-size: 11px;
-	line-height: 12px;
-}
-
 #temps td {
 	line-height: 18px;
 }

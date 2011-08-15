@@ -44,20 +44,6 @@ function update_load()
 		{
 			var json = JSON.parse(this.responseText);
 			document.getElementById("load").innerHTML = prefix + json.load;
-			
-			document.getElementById("pslist").innerHTML = "";
-			
-			var processes = json.processes;
-			for (var i = 0; i < processes.length; i++)
-			{
-				var p = processes[i];
-				
-				var row = "<tr><td class='pid'>" + p["pid"] + "</td>" +
-					"<td class='name'>" + p["process"] + "</td>" +
-					"<td class='cpu'>" + p["cpu"] + "</td>" +
-					"<td class='ram'>" + p["ram"] + "</td></tr>";
-				document.getElementById("pslist").innerHTML += row;
-			}
 		}
 	}
 	xmlhttp.open("GET", "./backend.php?q=cpu", true);
