@@ -27,13 +27,13 @@ class Ship
 	(which will display the message but not halt the page), and 2 for critical
 	(which will die() the page). */
 	protected $errors = array();
-	
+
 	/* Returns the array of errors. */
 	public function errors ()
 	{
 		return $this->errors;
 	}
-	
+
 	/* Adds an error to the error array. While this could be done directly, this
 	is shorter and prevents duplicate errors. Returns true if the error was
 	added to the array (the inverse of if there was a duplicate). */
@@ -47,12 +47,12 @@ class Ship
 		}
 		return false;
 	}
-	
+
 	/* Ship configuration. Should be handled as read-only, since any changes
 	made here will not (and, at the moment, can not) be saved. It is filled in
 	during __construct() with the config() function. */
 	protected $config = array();
-	
+
 	/* Configuration loader function. This will attempt to load the config file
 	if it exists, and will load a default "failsafe" one if the file cannot be
 	opened. */
@@ -69,7 +69,7 @@ class Ship
 			'temperature_crit' => 50,
 			'ignore_disk' => array(),
 		);
-		
+
 		# check that we can access the file
 		if (!file_exists ($cfgfile) or !is_readable($cfgfile))
 		{
@@ -77,24 +77,24 @@ class Ship
 			because the normal Ship configuration file ('.$cfgfile.') is
 			missing or cannot be read by your web server. Check that it is in
 			the proper location and change its permissions so that "others" can
-			read it.');
+			read it.', 0);
 			return $defaults;
 		}
 		else
 		{
 			$cfg = parse_ini_file ($cfgfile, false);
-			
+
 			# second array takes precedent
 			return array_merge ($defaults, $cfg);
 		}
 	}
-	
+
 	/* When initialized, the config variable should have the configuration in
 	it. Also checks if Ship is running on a valid operating system. */
 	public function __construct ()
 	{
 		$this->config = $this->config();
-		
+
 		$supported_oses = array('Linux');
 		if (!in_array(PHP_OS, $supported_oses))
 		{
@@ -102,16 +102,16 @@ class Ship
 			platform ('.PHP_OS.') yet.', 2);
 		}
 	}
-	
+
 	/* The Ship class shoudln't be echo'd, but just in case it is, show the
 	version number. */
 	public function __tostring ()
 	{
 		return 'Ship '.SHIP_VERSION;
 	}
-	
+
 	# Ship meta stuff ends - Ship module shared helper functions below
-	
+
 	/* Module helper function for calculating human-readable size of disks and
 	such. First argument takes an integer of kB, second is how many decimal
 	places you'd like. Returns the human-readable size. */
@@ -119,13 +119,13 @@ class Ship
 	{
 		$sizes = array('EB', 'PB', 'TB', 'GB', 'MB', 'kB');
 		$total = count($sizes);
-		
+
 		while ($total-- && $kb > 1024) $kb /= 1024;
 		return sprintf ('%.'.$p.'f ', $kb).$sizes[$total];
 	}
-	
+
 	# Helper functions ends - Ship modules below
-	
+
 	/* Machine information module. Displays hostname, domain name, IP address,
 	operating system information, and uptime. Single parameter used for
 	returning ONLY THE UPTIME as total number of seconds up. */
@@ -140,11 +140,11 @@ class Ship
 			'kernel' => trim (`uname -rm`),
 			'uptime' => '0d 00:00',
 		);
-		
+
 		# uptime is a little more complicated
 		$cmd = explode (' ', file_get_contents ('/proc/uptime'));
 		$seconds = round($cmd[0]);
-		
+
 		if ($uptime_raw) return $seconds;
 		else
 		{
@@ -156,7 +156,7 @@ class Ship
 
 			# only display days if we have to
 			$days = ($days == 0) ? '' : $days.'d ';
-		
+
 			# check config if we are supposed to do seconds
 			$config = $this->config;
 			if ($config['uptime_display_sec'])
@@ -164,10 +164,10 @@ class Ship
 			else
 				$machine['uptime'] = "${days}${hours}:${mins}";
 		}
-		
+
 		return $machine;
 	}
-	
+
 	/* Displays information about the CPU and load average. */
 	public function cpu ()
 	{
@@ -175,17 +175,17 @@ class Ship
 			'model' => '',
 			'load' => '',
 		);
-		
+
 		# get CPU information
 		$proc = explode (':', trim (`cat /proc/cpuinfo | grep -i 'model name' | head -1`));
 		# remove unnecessary words
 		$cpu['model'] = trim (str_ireplace (array ('(R)','(C)','(TM)', 'CPU', 'processor'), '', $proc[1]));
 
 		$cpu['load'] = trim (`cat /proc/loadavg | awk '{ print $1, $2, $3 }'`);
-		
+
 		return $cpu;
 	}
-	
+
 	/* Displays information about RAM and swap usage. */
 	public function ram ()
 	{
@@ -203,9 +203,9 @@ class Ship
 				'pctused' => 0,
 			),
 		);
-		
+
 		$proc = `cat /proc/meminfo | grep -E '^(MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree)' | sed -e 's/[kKMG]B//g'`;
-		
+
 		$step = array ();
 		# make the "Thingy: Value" syntax of the proc file into an array
 		foreach (explode ("\n", $proc) as $l)
@@ -213,24 +213,24 @@ class Ship
 			@list ($key, $value) = explode (':', $l, 2);
 			if (!empty ($key) and !empty ($value)) $step[$key] = intval($value);
 		}
-		
+
 		# move the array into something easy to use
-		
+
 		$ram_free = $step['MemFree'] + $step['Buffers'] + $step['Cached'];
-		
+
 		$ram['ram']['total'] = $this->calc_size ($step['MemTotal']);
 		$ram['ram']['free'] = $this->calc_size ($ram_free);
 		$ram['ram']['used'] = $this->calc_size ($step['MemTotal'] - $ram_free);
 		$ram['ram']['pctused'] = round (($step['MemTotal'] - $ram_free) / $step['MemTotal'] * 100);
-		
+
 		$ram['swap']['total'] = $this->calc_size ($step['SwapTotal']);
 		$ram['swap']['free'] = $this->calc_size ($step['SwapFree']);
 		$ram['swap']['used'] = $this->calc_size ($step['SwapTotal'] - $step['SwapFree']);
 		$ram['swap']['pctused'] = round (($step['SwapTotal'] - $step['SwapFree']) / $step['SwapTotal'] * 100);
-		
+
 		return $ram;
 	}
-	
+
 	/* Shows what the hddtemp daemon has to say about disks and their
 	temperatures. */
 	public function hddtemp ()
@@ -264,10 +264,17 @@ class Ship
 				if (empty ($v)) unset ($c[$k]);
 			}
 			$c = array_values($c);
-			
+
+			# if hddtemp had a hiccup, skip the disk and add a note
+			if ($c[3] == '*')
+			{
+				$this->add_error ("The temperature of the disk ${c[0]} wasn't displayed because hddtemp told Ship that it was '{$c[2]}'.", 0);
+				continue;
+			}
+
 			$units = strtoupper ($this->config['temperature_units']);
 			$temp = $c[2];
-		
+
 			# convoluted and awesome temperature convert-o-tron
 			switch (strtoupper ($c[3]))
 			{
@@ -300,9 +307,9 @@ class Ship
 					else
 						$temp = $temp;
 					break;
-				}	
+				}
 			}
-			
+
 			# add status to the array
 			if ($temp >= $this->config['temperature_warn'])
 			{
@@ -312,7 +319,7 @@ class Ship
 					$status = 'warn';
 			} else
 				$status = 'ok';
-			
+
 			# we're still in that foreach loop - add the disk to the array
 			$disks[] = array (
 				'dev' => $c[0],
@@ -322,10 +329,10 @@ class Ship
 				'status' => $status,
 			);
 		}
-		
-		return $disks;	
+
+		return $disks;
 	}
-	
+
 	/* Shows mountpoints' capacity and space remaining. */
 	public function diskspace ()
 	{
@@ -335,11 +342,11 @@ class Ship
 		foreach (explode ("\n", $proc) as $d)
 		{
 			$dvals = preg_split('/\s+/', $d, 7);
-			
+
 			# honor config ignore_disk settings
 			if (in_array ($dvals[6], $this->config['ignore_disk']))
 				continue;
-		
+
 			# add key names to the array
 			$disks[] = array (
 				'dev' => $dvals[0],
@@ -351,7 +358,7 @@ class Ship
 				'mount' => $dvals[6],
 			);
 		}
-		
+
 		return $disks;
 	}
 }
@@ -365,10 +372,10 @@ if (!empty ($_GET['q']))
 
 	$query = $_GET['q'];
 	$data = $ship->$query();
-	
+
 	# still show errors, but ignore them unless they are critical
 	if ($errors = $ship->errors() and $errors[0][1] > 1) die ($errors[0][0]);
-	
+
 	exit (json_encode($data));
 }
 
