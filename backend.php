@@ -11,7 +11,7 @@
  *          (http://creativecommons.org/licenses/by-sa/3.0)
 */
 
-define ('SHIP_VERSION', '2.0 alpha 7');
+define ('SHIP_VERSION', '2.0 alpha 8');
 
 # Disable caching
 header ("Cache-Control: no-cache, must-revalidate");
@@ -179,7 +179,8 @@ class Ship
 		# get CPU information
 		$proc = explode (':', trim (`cat /proc/cpuinfo | grep -i 'model name' | head -1`));
 		# remove unnecessary words
-		$cpu['model'] = trim (str_ireplace (array ('(R)','(C)','(TM)', 'CPU', 'processor'), '', $proc[1]));
+		$remove = array ('(R)','(C)','(TM)', 'CPU', 'processor');
+		$cpu['model'] = trim (str_ireplace ($remove, '', $proc[1]));
 
 		$cpu['load'] = trim (`cat /proc/loadavg | awk '{ print $1, $2, $3 }'`);
 
@@ -371,11 +372,27 @@ if (!empty ($_GET['q']))
 	$config = $ship->config();
 
 	$query = $_GET['q'];
-	$data = $ship->$query();
+	
+	# provide the entire backend as json, or specify which section
+	if ($query == 'json' or $query == 'all')
+	{
+		$data = array (
+			'machine' => $ship->machine(),
+			'cpu' => $ship->cpu(),
+			'ram' => $ship->ram(),
+			'hddtemp' => $ship->hddtemp(),
+			'diskspace' => $ship->diskspace(),
+		);
+	}
+	else
+	{
+		$data = $ship->$query();
+	}
 
 	# still show errors, but ignore them unless they are critical
 	if ($errors = $ship->errors() and $errors[0][1] > 1) die ($errors[0][0]);
 
 	exit (json_encode($data));
 }
+
 
