@@ -116,6 +116,9 @@ if ($ship->errors())
 			<div id="ship">
 				<div id="header">
 					<span>Ship <?=SHIP_VERSION?></span>
+					<ul class="buttons">
+						<li><a class="refresh" href=""><span>Refresh</span></a></li>
+					</ul>
 				</div>
 				<div id="machine">
 					<div class="hostname"><h2><?=$ma['hostname']?></h2></div>
