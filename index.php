@@ -86,6 +86,7 @@ if ($ship->errors())
 
 		<title><?=$ma['hostname'].' - Ship '.SHIP_VERSION; ?></title>
 		<link rel="stylesheet" href="./css/<?=$config['stylesheet']?>" type="text/css" />
+		<link rel="icon" type="image/png" href="./img/icon.png" />
 		
 		<!-- initialize some variables for scripts -->
 		<script type="text/javascript">
