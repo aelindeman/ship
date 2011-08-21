@@ -121,7 +121,7 @@ class Ship
 		$total = count($sizes);
 
 		while ($total-- && $kb > 1024) $kb /= 1024;
-		return sprintf ('%.'.$p.'f ', $kb).$sizes[$total];
+		return round ($kb, $p).' '.$sizes[$total];
 	}
 
 	# Helper functions ends - Ship modules below
