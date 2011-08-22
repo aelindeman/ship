@@ -64,6 +64,7 @@ class Ship
 			'refresh_rate' => 5,
 			'show_all_errors' => false,
 			'uptime_display_sec' => true,
+			'disable_hddtemp' => false,
 			'temperature_units' => 'c',
 			'temperature_warn' => 40,
 			'temperature_crit' => 50,
@@ -372,7 +373,7 @@ if (!empty ($_GET['q']))
 	$config = $ship->config();
 
 	$query = $_GET['q'];
-	
+
 	# provide the entire backend as json, or specify which section
 	if ($query == 'json' or $query == 'all')
 	{
@@ -380,9 +381,10 @@ if (!empty ($_GET['q']))
 			'machine' => $ship->machine(),
 			'cpu' => $ship->cpu(),
 			'ram' => $ship->ram(),
-			'hddtemp' => $ship->hddtemp(),
 			'diskspace' => $ship->diskspace(),
 		);
+
+		if (!$config['disable_hddtemp']) $data['hddtemp'] = $ship->hddtemp();
 	}
 	else
 	{

@@ -19,7 +19,6 @@ $config = $ship->config();
 $ma = $ship->machine();
 $cp = $ship->cpu();
 $ra = $ship->ram();
-$ht = $ship->hddtemp();
 $df = $ship->diskspace();
 
 $rr = $config['refresh_rate'];
@@ -27,11 +26,14 @@ $raw_ut = $ship->machine(true);
 
 # prepare disk temperature table
 
-$hddtemp = '';
-foreach ($ht as $d)
+if (!$config['disable_hddtemp'])
 {
-	$di = (strtoupper($config['temperature_units']) != 'K') ? '&deg;' : ' ';
-	$hddtemp .= <<<DISK
+	$ht = $ship->hddtemp();
+	$hddtemp = '';
+	foreach ($ht as $d)
+	{
+		$di = (strtoupper($config['temperature_units']) != 'K') ? '&deg;' : ' ';
+		$hddtemp .= <<<DISK
 <tr>
 	<td class="dev">${d['dev']}</td>
 	<td class="model">${d['model']}</td>
@@ -39,6 +41,7 @@ foreach ($ht as $d)
 </tr>
 
 DISK;
+	}
 }
 
 # prepare disk space table
@@ -87,7 +90,7 @@ if ($ship->errors())
 		<title><?=$ma['hostname'].' - Ship '.SHIP_VERSION; ?></title>
 		<link rel="stylesheet" href="./css/<?=$config['stylesheet']?>" type="text/css" />
 		<link rel="icon" type="image/png" href="./img/icon.png" />
-		
+
 		<!-- initialize some variables for scripts -->
 		<script type="text/javascript">
 		//<!--
@@ -97,7 +100,7 @@ if ($ship->errors())
 		//-->
 		</script>
 		<script src="./ship.js" type="text/javascript"></script>
-		
+
 	</head>
 	<body>
 		<?php if ($errors = $ship->errors()) { ?>
