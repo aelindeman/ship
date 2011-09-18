@@ -191,6 +191,51 @@ class Ship
 		return $cpu;
 	}
 
+	/* Provides information about running processes. */
+	public function processes ()
+	{
+		$ps = array (
+			'active' => 0,
+			'total' => 0,
+			'top' => array (),
+		);
+
+		# get the active and total number of running processes from loadavg
+		$proc = trim (file_get_contents ('/proc/loadavg'));
+		$num = explode (' ', $proc);
+
+		list ($active, $total) = explode ('/', $num[3]);
+
+		$ps['active'] = $active;
+		$ps['total'] = $total;
+
+		# add the top three processes to the list
+		$top = trim (`ps -e -o pmem,pcpu,pid,comm --sort pmem | sed -e '1d' | sort -r`);
+
+		# nicely format the array
+		$i = 0;
+		$limit = 3;
+		foreach (explode ("\n", $top) as $p)
+        {
+			$split = preg_split ('/\s+/', $p, 4, PREG_SPLIT_NO_EMPTY);
+
+			$process = array (
+				'pid' => $split[2],
+				'process' => $split[3],
+				'cpu' => $split[1],
+				'ram' => $split[0],
+			);
+
+			$ps['top'][] = $process;
+
+			$i ++;
+			if ($i >= $limit) break;
+		}
+
+
+		return $ps;
+	}
+
 	/* Displays information about RAM and swap usage. */
 	public function ram ()
 	{
@@ -383,6 +428,7 @@ if (!empty ($_GET['q']))
 		$data = array (
 			'machine' => $ship->machine(),
 			'cpu' => $ship->cpu(),
+			'processes' => $ship->processes(),
 			'ram' => $ship->ram(),
 			'diskspace' => $ship->diskspace(),
 		);
