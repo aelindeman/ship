@@ -7,8 +7,8 @@
  * displayed to the user along with some pretty CSS.
  *
  * Written and maintained by Alex Lindeman <aelindeman@gmail.com>
- * License: Creative Commons Attribution-ShareAlike 3.0
- *          (http://creativecommons.org/licenses/by-sa/3.0)
+ * License: GNU General Public License v3
+ *          (http://www.gnu.org/licenses/gpl-3.0.html)
 */
 
 define ('SHIP_VERSION', '2.0 alpha 8');
@@ -39,7 +39,7 @@ class Ship
 	added to the array (the inverse of if there was a duplicate). */
 	public function add_error ($errstr, $severity = 1)
 	{
-		$error = array ($errstr, intval($severity));
+		$error = array ($errstr, intval ($severity));
 		if (!in_array ($error, $this->errors))
 		{
 			$this->errors[] = $error;
@@ -72,7 +72,7 @@ class Ship
 		);
 
 		# check that we can access the file
-		if (!file_exists ($cfgfile) or !is_readable($cfgfile))
+		if (!file_exists ($cfgfile) or !is_readable ($cfgfile))
 		{
 			$this->add_error ('The default configuration has been loaded
 			because the normal Ship configuration file ('.$cfgfile.') is
@@ -96,8 +96,8 @@ class Ship
 	{
 		$this->config = $this->config();
 
-		$supported_oses = array('Linux');
-		if (!in_array(PHP_OS, $supported_oses))
+		$supported_oses = array ('Linux');
+		if (!in_array (PHP_OS, $supported_oses))
 		{
 			$this->add_error ('Unfortunately, Ship is not supported on this
 			platform ('.PHP_OS.') yet.', 2);
@@ -118,8 +118,8 @@ class Ship
 	places you'd like. Returns the human-readable size. */
 	private function calc_size ($kb, $p = 1)
 	{
-		$sizes = array('EB', 'PB', 'TB', 'GB', 'MB', 'kB');
-		$total = count($sizes);
+		$sizes = array ('EB', 'PB', 'TB', 'GB', 'MB', 'kB');
+		$total = count ($sizes);
 
 		while ($total-- && $kb > 1024) $kb /= 1024;
 		return round ($kb, $p).' '.$sizes[$total];
@@ -136,7 +136,7 @@ class Ship
 		$machine = array (
 			'hostname' => trim (file_get_contents('/proc/sys/kernel/hostname')),
 			'ip' => trim ($_SERVER['SERVER_ADDR']),
-			'domain' => trim (gethostbyaddr($_SERVER['SERVER_ADDR'])),
+			'domain' => trim (gethostbyaddr ($_SERVER['SERVER_ADDR'])),
 			'os' => trim (`lsb_release -d | cut -f2-`),
 			'kernel' => trim (`uname -rm`),
 			'uptime' => '0d 00:00',
@@ -150,10 +150,10 @@ class Ship
 		else
 		{
 			# divide and mod instead of mktime (this is easier to use)
-			$secs = str_pad(intval($seconds % 60), 2, '0', STR_PAD_LEFT);
-			$mins = str_pad(intval($seconds / 60 % 60), 2, '0', STR_PAD_LEFT);
-			$hours = intval($seconds / 3600 % 24);
-			$days = intval($seconds / 86400);
+			$secs = str_pad (intval ($seconds % 60), 2, '0', STR_PAD_LEFT);
+			$mins = str_pad (intval ($seconds / 60 % 60), 2, '0', STR_PAD_LEFT);
+			$hours = intval ($seconds / 3600 % 24);
+			$days = intval ($seconds / 86400);
 
 			# only display days if we have to
 			$days = ($days == 0) ? '' : $days.'d ';
@@ -183,7 +183,10 @@ class Ship
 		$remove = array ('(R)','(C)','(TM)', 'CPU', 'processor');
 		$cpu['model'] = trim (str_ireplace ($remove, '', $proc[1]));
 
-		$cpu['load'] = trim (`cat /proc/loadavg | awk '{ print $1, $2, $3 }'`);
+		# get load average and discard the process info at the end
+		$load = trim (file_get_contents ('/proc/loadavg'));
+		$load = explode (' ', $load);
+		$cpu['load'] = implode (' ', array ($load[0], $load[1], $load[2]));
 
 		return $cpu;
 	}
@@ -258,7 +261,7 @@ class Ship
 		$disks = array();
 		foreach (explode ('||', $data) as $d)
 		{
-			$c = explode('|', $d);
+			$c = explode ('|', $d);
 
 			# remove empty crap from the array
 			foreach ($c as $k=>$v)
@@ -283,7 +286,7 @@ class Ship
 				case 'C':
 				{
 					if ($units == 'F')
-						$temp = round(1.8 * $temp + 32);
+						$temp = round (1.8 * $temp + 32);
 					else if ($units == 'K')
 						$temp += 273;
 					else
@@ -293,9 +296,9 @@ class Ship
 				case 'F':
 				{
 					if ($units == 'C')
-						$temp = round(($temp - 32) * 5/9);
+						$temp = round (($temp - 32) * 5/9);
 					else if ($units == 'K')
-						$temp = round((($temp - 32) * 5/9) + 273);
+						$temp = round ((($temp - 32) * 5/9) + 273);
 					else
 						$temp = $temp;
 					break;
@@ -305,7 +308,7 @@ class Ship
 					if ($units == 'C')
 						$temp -= 273;
 					else if ($units == 'F')
-						$temp = round((1.8 * $temp + 32) - 273);
+						$temp = round ((1.8 * $temp + 32) - 273);
 					else
 						$temp = $temp;
 					break;
@@ -343,7 +346,7 @@ class Ship
 		$disks = array();
 		foreach (explode ("\n", $proc) as $d)
 		{
-			$dvals = preg_split('/\s+/', $d, 7);
+			$dvals = preg_split ('/\s+/', $d, 7);
 
 			# honor config ignore_disk settings
 			if (in_array ($dvals[6], $this->config['ignore_disk']))
@@ -396,5 +399,3 @@ if (!empty ($_GET['q']))
 
 	exit (json_encode($data));
 }
-
-
