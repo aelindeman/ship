@@ -1,7 +1,14 @@
+/**
+ * Ship 2.0 Frontend Script
+ *
+ * Updates the data displayed on the frontend by loading the backend as a JSON
+ * array.
+*/
+
 /* Updates the uptime in realtime, on the client side (since it's predictable).
 Also looks neat. */
 function animate_uptime()
-{	
+{
 	var prefix = "Uptime: ";
 
 	var secs = parseInt(raw_uptime % 60);
@@ -27,48 +34,42 @@ function animate_uptime()
 	setTimeout ("animate_uptime()", 1000);
 }
 
-/* update_xyz() functions involve AJAX requests to the Ship backend, which
-supplies JSON which is parsed by the browser's native JSON parser (has many
-advantages, though it may not work in older browers). */
-
-/* update_load() also updates the top processes list, since they are both in the
-same section in the backend */
-function update_load()
+/* Processes data to keep the code in update_ship() cleaner. */
+function do_load (data)
 {
 	var prefix = "Load average: ";
-	
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange = function()
-	{
-		if (this.readyState == 4 && this.status == 200)
-		{
-			var json = JSON.parse(this.responseText);
-			document.getElementById("load").innerHTML = prefix + json.load;
-		}
-	}
-	xmlhttp.open("GET", "./backend.php?q=cpu", true);
-	xmlhttp.send();
-	
-	setTimeout ("update_load()", refresh_rate);
+	document.getElementById("load").innerHTML =
+		prefix + data.load;
 }
 
-function update_ram()
+function do_ram (data)
+{
+	document.getElementById("ram_used").innerHTML =
+		data.ram.used + " used (" + data.ram.pctused + "%)";
+	document.getElementById("ram_used_meter").style.width =
+		data.ram.pctused + "%";
+	document.getElementById("swap_used").innerHTML =
+		data.swap.used + " used (" + data.swap.pctused + "%)";
+	document.getElementById("swap_used_meter").style.width =
+		data.swap.pctused + "%";
+}
+
+/* Updates the entire frontend with one JSON request instead of many little
+ones. */
+function update_ship ()
 {
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function()
 	{
 		if (this.readyState == 4 && this.status == 200)
 		{
-			var json = JSON.parse(this.responseText);
-			document.getElementById("ram_used").innerHTML = json.ram.used + " used (" + json.ram.pctused + "%)";
-			document.getElementById("ram_used_meter").style.width = json.ram.pctused + "%";
-			document.getElementById("swap_used").innerHTML = json.swap.used + " used (" + json.swap.pctused + "%)";
-			document.getElementById("swap_used_meter").style.width = json.swap.pctused + "%";
+			var json = JSON.parse (this.responseText);
+			do_load (json.ram);
+			do_ram (json.cpu);
 		}
 	}
-	xmlhttp.open("GET", "./backend.php?q=ram", true);
+	xmlhttp.open("GET", "./backend.php?q=all", true);
 	xmlhttp.send();
-	
-	setTimeout ("update_ram()", refresh_rate);
-}
 
+	setTimeout ("update_ship()", refresh_rate);
+}

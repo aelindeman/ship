@@ -6,8 +6,8 @@
  * information from backend.php and makes it all nice and pretty for the user.
  *
  * Written and maintained by Alex Lindeman <aelindeman@gmail.com>
- * License: Creative Commons Attribution-ShareAlike 3.0
- *          (http://creativecommons.org/licenses/by-sa/3.0)
+ * License: GNU General Public License v3
+ *          (http://www.gnu.org/licenses/gpl-3.0.html)
 */
 
 require_once ('./backend.php');
@@ -22,7 +22,7 @@ $ra = $ship->ram();
 $df = $ship->diskspace();
 
 $rr = $config['refresh_rate'];
-$raw_ut = $ship->machine(true);
+$raw_ut = $ship->machine (true);
 
 # prepare disk temperature table
 
@@ -94,9 +94,9 @@ if ($ship->errors())
 		<!-- initialize some variables for scripts -->
 		<script type="text/javascript">
 		//<!--
-			var refresh_rate = <?=intval($rr) * 1000 ?>;
-			var raw_uptime = <?=intval($raw_ut)?>;
-			var uptime_show_seconds = <?=$config['uptime_display_sec']?'true':'false'?>;
+			var refresh_rate = <?=intval ($rr) * 1000 ?>;
+			var raw_uptime = <?=intval ($raw_ut)?>;
+			var uptime_show_seconds = <?=$config['uptime_display_sec'] ? 'true' : 'false'?>;
 		//-->
 		</script>
 		<script src="./ship.js" type="text/javascript"></script>
@@ -181,8 +181,7 @@ if ($ship->errors())
 		<script type="text/javascript">
 		//<!--
 			animate_uptime();
-			update_load();
-			update_ram();
+			update_ship();
 		//-->
 		</script>
 	</body>
