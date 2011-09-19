@@ -113,7 +113,7 @@ function do_diskspace ()
 			"'><span class='pct'>&nbsp;</span></div></div>";
 		row = "<tr><td class='disk' title='" + dev + "'>" + mount +
 			"</td><td class='type'>" + type + "</td><td class='size'>" + used +
-			" used of " + total + " used" + meter + "</td></tr>";
+			" of " + total + " used" + meter + "</td></tr>";
 
 		table += row;
 	}
