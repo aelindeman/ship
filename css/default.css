@@ -77,6 +77,18 @@ body.iphone {
 	padding-top: 8px;
 }
 
+#processes .pid{
+    width: 75px;
+}
+#processes .cpu, #processes .ram {
+    width: 50px;
+    text-align: right;
+}
+#processes td {
+    font-size: 11px;
+    line-height: 12px;
+}
+
 #memory #swap {
 	margin-top: 8px;
 }

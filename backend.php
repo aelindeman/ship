@@ -213,11 +213,11 @@ class Ship
 		$top = trim (`ps -e -o pmem,pcpu,pid,comm --sort pmem | sed -e '1d' | sort -r`);
 
 		# nicely format the array
-		$i = 0;
-		$limit = 3;
-		foreach (explode ("\n", $top) as $p)
-        {
-			$split = preg_split ('/\s+/', $p, 4, PREG_SPLIT_NO_EMPTY);
+		$list = explode ("\n", $top);
+
+		for ($i = 0; $i < 3; $i ++)
+		{
+			$split = preg_split ('/\s+/', $list[$i], 4, PREG_SPLIT_NO_EMPTY);
 
 			$process = array (
 				'pid' => $split[2],
@@ -227,11 +227,7 @@ class Ship
 			);
 
 			$ps['top'][] = $process;
-
-			$i ++;
-			if ($i >= $limit) break;
 		}
-
 
 		return $ps;
 	}

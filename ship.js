@@ -51,14 +51,14 @@ function do_processes ()
 		pid = data.processes.top[i].pid;
 		process = data.processes.top[i].process;
 		cpu = data.processes.top[i].cpu;
-		mem = data.processes.top[i].mem;
+		ram = data.processes.top[i].ram;
 
 		table += "<tr><td class='pid'>" + pid + "</td><td class='process'>" +
-			process + "</td><td class='cpu'>" + cpu + "</td><td class='mem'>" +
-			mem + "</td></tr>";
+			process + "</td><td class='cpu'>" + cpu + "</td><td class='ram'>" +
+			ram + "</td></tr>";
 	}
 
-	//document.getElementById("pstable").innerHTML = table;
+	document.getElementById("pstable").innerHTML = table;
 }
 
 function do_ram ()

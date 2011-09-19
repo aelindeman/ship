@@ -18,11 +18,27 @@ $config = $ship->config();
 
 $ma = $ship->machine();
 $cp = $ship->cpu();
+$ps = $ship->processes();
 $ra = $ship->ram();
 $df = $ship->diskspace();
 
 $rr = $config['refresh_rate'];
 $raw_ut = $ship->machine (true);
+
+# prepare process list
+
+$processes = '';
+foreach ($ps['top'] as $p)
+{
+	$processes .= <<<PS
+<tr>
+	<td class="pid">${p['pid']}</td>
+	<td class="process">${p['process']}</td>
+	<td class="cpu">${p['cpu']}</td>
+	<td class="ram">${p['ram']}</td>
+</tr>
+PS;
+}
 
 # prepare disk temperature table
 
@@ -138,6 +154,20 @@ if ($ship->errors())
 				<div id="cpu">
 					<h2><?=$cp['model']?></h2>
 					<div class="load" id="load">Load average: <?=$cp['load']?></div>
+				</div>
+				<div id="processes">
+					<table>
+						<thead>
+							<tr class="header">
+								<th colspan="2"><?=$ps['total']?> processes</th>
+								<th class="cpu">% CPU</th>
+								<th class="ram">MEM</th>
+							</tr>
+						</thead>
+						<tbody id="pstable">
+							<?=$processes?>
+						</tbody>
+					</table>
 				</div>
 				<div id="memory">
 					<div id="ram">

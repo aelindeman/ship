@@ -70,6 +70,18 @@ body {
 	padding-top: 8px;
 }
 
+#processes .pid{
+    width: 75px;
+}
+#processes .cpu, #processes .ram {
+    width: 50px;
+    text-align: right;
+}
+#processes td {
+    font-size: 11px;
+    line-height: 12px;
+}
+
 #memory #swap {
 	margin-top: 8px;
 }
@@ -103,7 +115,7 @@ body {
 #temps td {
 	line-height: 18px;
 }
-#temps .dev, #temps .model {	
+#temps .dev, #temps .model {
 	font: normal 12px Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
 }
 #temps .temp {
