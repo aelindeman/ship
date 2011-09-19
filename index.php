@@ -159,7 +159,7 @@ if ($ship->errors())
 					<table>
 						<thead>
 							<tr class="header">
-								<th colspan="2"><?=$ps['total']?> processes</th>
+								<th colspan="2" id="pstotal"><?=$ps['total']?> processes</th>
 								<th class="cpu">% CPU</th>
 								<th class="ram">MEM</th>
 							</tr>

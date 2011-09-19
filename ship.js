@@ -58,6 +58,9 @@ function do_processes ()
 			ram + "</td></tr>";
 	}
 
+	document.getElementById("pstotal").innerHTML = data.processes.total +
+		" processes";
+
 	document.getElementById("pstable").innerHTML = table;
 }
 
