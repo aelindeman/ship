@@ -96,17 +96,6 @@ standards (such as [Firefox](http://mozilla.com/firefox) or
 setting, do “Edit > Select All”, and see what unhighlights itself after waiting
 however long `refresh_rate` is set to.
 
-**The uptime, load average, and memory usage are updating, but nothing else
-is.**
-
-This is by design. Due to the way the backend currently works, two page requests
-are made every time Ship updates the data shown on the page. In order to have
-everything update, that would move the number of requests to make up to 5, which
-will very likely slow everything down. (In fact, I think that two is still too
-many.) In order to fix this the JSON portion of the backend would have to
-include *all* of the page’s data, and this would require a somewhat complex
-rewrite that may be done in the near future, but has not be done now.
-
 **Why isn’t hddtemp working?**
 
 This is more likely a problem with hddtemp than a problem with Ship. Make sure
