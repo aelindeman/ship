@@ -11,7 +11,7 @@
  *          (http://www.gnu.org/licenses/gpl-3.0.html)
 */
 
-define ('SHIP_VERSION', '2.0 alpha 8');
+define ('SHIP_VERSION', '2.0 alpha 9');
 
 # Disable caching
 header ("Cache-Control: no-cache, must-revalidate");
@@ -318,7 +318,8 @@ class Ship
 			# if hddtemp had a hiccup, skip the disk and add a note
 			if ($c[3] == '*')
 			{
-				$this->add_error ("The temperature of the disk ${c[0]} wasn't displayed because hddtemp told Ship that it was '{$c[2]}'.", 0);
+				$this->add_error ("The temperature of the disk ${c[0]} wasn't
+				displayed because hddtemp told Ship that it was '{$c[2]}'.", 0);
 				continue;
 			}
 

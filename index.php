@@ -55,7 +55,7 @@ foreach ($df as $d)
 	<td class="type">${d['type']}</td>
 	<td class="size">
 		${d['used']} of ${d['total']} used
-		<div class="meter container" title="${d['pctused']} used">
+		<div class="meter container" title="${d['pctused']} used (${d['free']} free)">
 			<div class="meter fill" style="width:${d['pctused']}">
 				<span class="pct">&nbsp;</span>
 			</div>
@@ -64,6 +64,13 @@ foreach ($df as $d)
 </tr>
 
 DISK;
+}
+
+/* Returns whether or not an iPhone is viewing the page, which can be used for
+adding specific CSS rules like -webkit-text-size-adjust. */
+function fix_css ()
+{
+	return (strpos ($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false);
 }
 
 if ($ship->errors())
@@ -102,16 +109,18 @@ if ($ship->errors())
 		<script src="./ship.js" type="text/javascript"></script>
 
 	</head>
-	<body>
+	<?=(fix_css()) ? '<body class="iphone">' : '<body>'; ?>
 		<?php if ($errors = $ship->errors()) { ?>
 		<ul id="errors">
 			<?php
 			foreach ($errors as $e)
+			{
 				if ($e[1] > 0 or $config['show_all_errors'])
 				{
 					$severity = strtr ($e[1], array ('0' => 'info', '1' => 'warn', '2' => 'crit'));
 					echo '<li class="'.$severity.'">'.$e[0].'</li>';
 				}
+			}
 			?>
 		</ul>
 		<?php } ?>
@@ -153,23 +162,31 @@ if ($ship->errors())
 				<?php if (!empty ($ht)) { ?>
 				<div id="temps">
 					<table>
-						<tr class="header">
-							<th>Disk</th>
-							<th>Model</th>
-							<th></th>
-						</tr>
-						<?=$hddtemp?>
+						<thead>
+							<tr class="header">
+								<th>Disk</th>
+								<th>Model</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody id="hdttable">
+							<?=$hddtemp?>
+						</tbody>
 					</table>
 				</div>
 				<?php } ?>
 				<div id="diskspace">
 					<table>
-						<tr class="header">
-							<th>Mount</th>
-							<th>Type</th>
-							<th></th>
-						</tr>
-						<?=$diskspace?>
+						<thead>
+							<tr class="header">
+								<th>Mount</th>
+								<th>Type</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody id="disktable">
+							<?=$diskspace?>
+						</tbody>
 					</table>
 				</div>
 			</div>

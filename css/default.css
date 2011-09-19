@@ -3,6 +3,8 @@
 body {
 	background-color: #EEE;
 	font: normal 12px "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+}
+body.iphone {
 	-webkit-text-size-adjust: none;
 }
 #wrapper {
@@ -125,7 +127,7 @@ body {
 #temps td {
 	line-height: 18px;
 }
-#temps .dev, #temps .model {	
+#temps .dev, #temps .model {
 	font: normal 12px Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
 }
 #temps .temp {
