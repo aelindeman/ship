@@ -191,8 +191,8 @@ class Ship
 		return $cpu;
 	}
 
-	/* Provides information about running processes. */
-	public function processes ()
+	/* Provides information about running processes. 'count' parameter is how many processes to list under "top" processes. */
+	public function processes ($count = 3)
 	{
 		$ps = array (
 			'active' => 0,
@@ -215,18 +215,21 @@ class Ship
 		# nicely format the array
 		$list = explode ("\n", $top);
 
-		for ($i = 0; $i < 3; $i ++)
+		for ($i = 0; $i < $count; $i ++)
 		{
-			$split = preg_split ('/\s+/', $list[$i], 4, PREG_SPLIT_NO_EMPTY);
+			if (isset ($list[$i]))
+			{
+				$split = preg_split('/\s+/', $list[$i], 4, PREG_SPLIT_NO_EMPTY);
 
-			$process = array (
-				'pid' => $split[2],
-				'process' => $split[3],
-				'cpu' => $split[1],
-				'ram' => $split[0],
-			);
+				$process = array (
+					'pid' => $split[2],
+					'process' => $split[3],
+					'cpu' => $split[1],
+					'ram' => $split[0],
+				);
 
-			$ps['top'][] = $process;
+				$ps['top'][] = $process;
+			}
 		}
 
 		return $ps;
