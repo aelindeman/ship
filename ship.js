@@ -34,7 +34,8 @@ function animate_uptime()
 	setTimeout ("animate_uptime()", 1000);
 }
 
-/* Processes data to keep the code in update_ship() cleaner. */
+/* The do_*() functions process data independently to keep the code in
+update_ship() cleaner. */
 function do_load ()
 {
 	var prefix = "Load average: ";
@@ -134,6 +135,8 @@ function update_ship ()
 		if (this.readyState == 4 && this.status == 200)
 		{
 			data = JSON.parse (this.responseText);
+			
+			// update the sections individually
 			do_load();
 			do_processes();
 			do_ram();
@@ -143,6 +146,10 @@ function update_ship ()
 	}
 	xmlhttp.open ("GET", "./backend.php?q=all", true);
 	xmlhttp.send();
+	
+	// refresh rate really shouldn't be less than one second or it will
+	// dramatically increase load on the server
+	if (refresh_rate < 1) refresh_rate = 1;
 
 	setTimeout ("update_ship()", refresh_rate);
 }
