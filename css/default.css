@@ -77,8 +77,8 @@ body.iphone {
 	padding-top: 8px;
 }
 
-#processes .pid{
-    width: 75px;
+#processes .pid {
+    width: 60px;
 }
 #processes .cpu, #processes .ram {
     width: 50px;
@@ -186,6 +186,10 @@ body.iphone {
 #footer a:hover {
 	text-decoration: underline;
 }
+#footer .nojson {
+	color: #333;
+	font-weight: bold;
+}
 
 /* generic rules for tables */
 table {
@@ -193,7 +197,7 @@ table {
 }
 th {
 	text-align: left;
-	line-height: 18px;
+	line-height: 16px;
 }
 td {
 	line-height: 16px;

@@ -129,13 +129,25 @@ function do_diskspace ()
 ones. */
 function update_ship ()
 {
+	// Make sure the browser supports native JSON parsing. If not, then disable
+	// the auto-updater.
+	if (typeof JSON != 'object')
+	{
+		// alert ("Your browser does not appeear to support native JSON parsing; it has been disabled.");
+		footer = document.getElementById("footer").innerHTML;
+		document.getElementById("footer").innerHTML =
+			"<span class='nojson'>Static mode</span> - " + footer;
+
+		return false;
+	}
+
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function()
 	{
 		if (this.readyState == 4 && this.status == 200)
 		{
 			data = JSON.parse (this.responseText);
-			
+
 			// update the sections individually
 			do_load();
 			do_processes();
@@ -146,7 +158,7 @@ function update_ship ()
 	}
 	xmlhttp.open ("GET", "./backend.php?q=all", true);
 	xmlhttp.send();
-	
+
 	// refresh rate really shouldn't be less than one second or it will
 	// dramatically increase load on the server
 	if (refresh_rate < 1) refresh_rate = 1;
