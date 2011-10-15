@@ -210,12 +210,13 @@ class Ship
 		$ps['total'] = $total;
 
 		# add the top three processes to the list
-		$top = trim (`ps -e -o pmem,pcpu,pid,comm --sort pmem | sed -e '1d' | sort -r`);
+		$top = trim (`ps axo pmem,pcpu,pid,comm k -pcpu,-pmem`);
 
 		# nicely format the array
 		$list = explode ("\n", $top);
 
-		for ($i = 0; $i < $count; $i ++)
+		# start at 1 to remove the header row, which is always first
+		for ($i = 1; $i < ($count + 1); $i ++)
 		{
 			if (isset ($list[$i]))
 			{
