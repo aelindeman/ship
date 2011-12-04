@@ -22,11 +22,17 @@ $ps = $ship->processes();
 $ra = $ship->ram();
 $df = $ship->diskspace();
 
+# Make sure the refresh rate is actually an integer
 $rr = $config['refresh_rate'];
+if (!is_int ($rr) or intval ($rr) < 1)
+{
+	$rr = 5;
+}
+
+# Get the raw uptime so the JavaScript thingy can handle it
 $raw_ut = $ship->machine (true);
 
 # prepare process list
-
 $processes = '';
 foreach ($ps['top'] as $p)
 {
@@ -41,7 +47,6 @@ PS;
 }
 
 # prepare disk temperature table
-
 if (!$config['disable_hddtemp'])
 {
 	$ht = $ship->hddtemp();
@@ -61,7 +66,6 @@ DISK;
 }
 
 # prepare disk space table
-
 $diskspace = '';
 foreach ($df as $d)
 {
@@ -89,6 +93,7 @@ function fix_css ()
 	return (strpos ($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false);
 }
 
+# Display any Ship errors
 if ($ship->errors())
 {
 	foreach ($ship->errors() as $e)
