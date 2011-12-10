@@ -92,7 +92,7 @@ displays if you're on a slow connection.)
 If **only** the uptime is changing, that may mean your browser does not have a
 native JSON parser. To fix this, you need a newer browser which supports newer
 standards (such as [Firefox](http://mozilla.com/firefox) or
-[Chrome](http://google.com/chrome). You can also check the `refresh_rate`
+[Chrome](http://google.com/chrome)). You can also check the `refresh_rate`
 setting, do "Edit > Select All", and see what unhighlights itself after waiting
 however long `refresh_rate` is set to.
 

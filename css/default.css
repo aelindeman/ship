@@ -66,11 +66,13 @@ body.iphone {
 #machine .net {
 	float: right;
 	font-family: Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
+	line-height: 16px;
 	text-align: right;
 }
 #machine .os {
 	clear: left;
 	float: left;
+	line-height: 16px;
 }
 #machine .uptime {
 	clear: both;
