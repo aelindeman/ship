@@ -133,7 +133,7 @@ function update_ship ()
 	// the auto-updater.
 	if (typeof JSON != 'object')
 	{
-		// alert ("Your browser does not appeear to support native JSON parsing; it has been disabled.");
+		// alert ("Your browser does not appear to support native JSON parsing; it has been disabled.");
 		footer = document.getElementById("footer").innerHTML;
 		document.getElementById("footer").innerHTML =
 			"<span class='nojson'>Static mode</span> - " + footer;

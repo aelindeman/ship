@@ -94,17 +94,28 @@ class Ship
 	it. Also checks if Ship is running on a valid operating system. */
 	public function __construct ()
 	{
-		$this->config = $this->config();
+		# make sure all of the <?= echos work in index.php - these can be turned
+		# off in the config but are always enabled in PHP 5.4.0 and later
+		$shorttag = ini_get ('short_open_tag');
+		$version = version_compare (PHP_VERSION, '5.4.0', '<');
+		if (!$shorttag and $version)
+		{
+			die ('Ship requires that the short_open_tag preference is enabled in
+			php.ini.');
+		}
 
+		# stop if the computer is using an OS that Ship doesn't work on
 		$supported_oses = array ('Linux');
 		if (!in_array (PHP_OS, $supported_oses))
 		{
-			$this->add_error ('Unfortunately, Ship is not supported on this
-			platform ('.PHP_OS.') yet.', 2);
+			die ('Unfortunately, Ship is not supported on this
+			platform ('.PHP_OS.').');
 		}
+		
+		$this->config = $this->config();
 	}
 
-	/* The Ship class shoudln't be echo'd, but just in case it is, show the
+	/* The Ship class shoudln't be echoed, but just in case it is, show the
 	version number. */
 	public function __tostring ()
 	{
