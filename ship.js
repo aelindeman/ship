@@ -5,6 +5,39 @@
  * array.
 */
 
+/* Function called when the auto-refresh toggle button is clicked. */
+function toggle_auto_refresh ()
+{
+	// switch and show auto_refresh value in toggle button label
+	auto_refresh = !auto_refresh;
+	var refresh_state = auto_refresh ? "on" : "off";
+	
+	document.getElementById("arstatus").innerHTML = refresh_state;
+	
+	// the uptime clock will not have updated while auto_refresh was disabled,
+	// so get the current uptime
+	if (auto_refresh)
+	{
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function()
+		{
+			if (this.readyState == 4 && this.status == 200)
+			{
+				data = JSON.parse (this.responseText);
+				raw_uptime = data.uptime;
+			}
+		}
+		xmlhttp.open ("GET", "./backend.php?q=uptime", true);
+		xmlhttp.send();
+		
+		// tell the updaters to start again
+		animate_uptime();
+		update_ship();
+	}
+	
+	return false;
+}
+
 /* Updates the uptime in realtime, on the client side (since it's predictable).
 Also looks neat. */
 function animate_uptime()
@@ -31,7 +64,11 @@ function animate_uptime()
 	uptime_location.replaceChild(replacement, uptime_location.childNodes[0]);
 
 	raw_uptime ++;
-	setTimeout ("animate_uptime()", 1000);
+	
+	if (auto_refresh)
+	{
+		setTimeout ("animate_uptime()", 1000);
+	}
 }
 
 /* The do_*() functions process data independently to keep the code in
@@ -133,10 +170,8 @@ function update_ship ()
 	// the auto-updater.
 	if (typeof JSON != 'object')
 	{
-		// alert ("Your browser does not appear to support native JSON parsing; it has been disabled.");
-		footer = document.getElementById("footer").innerHTML;
-		document.getElementById("footer").innerHTML =
-			"<span class='nojson'>Static mode</span> - " + footer;
+		document.getElementById("artoggle").innerHTML =
+			"<span class='nojson'>Auto-refresh is not supported</span>";
 
 		return false;
 	}
@@ -163,5 +198,8 @@ function update_ship ()
 	// dramatically increase load on the server
 	if (refresh_rate < 1) refresh_rate = 1;
 
-	setTimeout ("update_ship()", refresh_rate);
+	if (auto_refresh)
+	{
+		setTimeout ("update_ship()", refresh_rate);
+	}
 }

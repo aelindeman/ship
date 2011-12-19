@@ -11,7 +11,7 @@
  *          (http://www.gnu.org/licenses/gpl-3.0.html)
 */
 
-define ('SHIP_VERSION', '2.0 alpha 9');
+define ('SHIP_VERSION', '2.0 alpha 10');
 
 # Disable caching
 header ("Cache-Control: no-cache, must-revalidate");
@@ -61,6 +61,7 @@ class Ship
 		# default configuration in case the configuration file is missing
 		$defaults = array (
 			'stylesheet' => 'default.css',
+			'auto_refresh' => true,
 			'refresh_rate' => 5,
 			'show_all_errors' => false,
 			'uptime_display_sec' => true,
@@ -190,9 +191,10 @@ class Ship
 
 		# get CPU information
 		$proc = explode (':', trim (`cat /proc/cpuinfo | grep -i 'model name' | head -1`));
-		# remove unnecessary words
-		$remove = array ('(R)','(C)','(TM)', 'CPU', 'processor');
-		$cpu['model'] = trim (str_ireplace ($remove, '', $proc[1]));
+
+		# remove unnecessary words and extra spaces
+		$remove = array ('(R)','(C)','(TM)', 'CPU', 'processor', '   ');
+		$cpu['model'] = trim (str_ireplace ($remove, null, $proc[1]));
 
 		# get load average and discard the process info at the end
 		$load = trim (file_get_contents ('/proc/loadavg'));
@@ -446,6 +448,13 @@ if (!empty ($_GET['q']))
 		);
 
 		if (!$config['disable_hddtemp']) $data['hddtemp'] = $ship->hddtemp();
+	}
+	# provide raw uptime for easier javascripting
+	else if ($query == 'uptime')
+	{
+		$data = array (
+			'uptime' => $ship->machine(true),
+		);
 	}
 	else
 	{

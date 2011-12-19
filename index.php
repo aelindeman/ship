@@ -122,6 +122,7 @@ if ($ship->errors())
 		<!-- initialize some variables for scripts -->
 		<script type="text/javascript">
 		//<!--
+			var auto_refresh = <?=$config['auto_refresh']?>;
 			var refresh_rate = <?=intval ($rr) * 1000 ?>;
 			var raw_uptime = <?=intval ($raw_ut)?>;
 			var uptime_show_seconds = <?=$config['uptime_display_sec'] ? 'true' : 'false'?>;
@@ -227,7 +228,13 @@ if ($ship->errors())
 			</div>
 		</div>
 		<div id="footer">
-			Ship <?=SHIP_VERSION?> - <a href="http://ael.me/ship/">ael.me/ship</a>
+			<div id="artoggle">
+				<a href="#" onclick="toggle_auto_refresh()">Auto-refresh <span id="arstatus"><?=$config['auto_refresh'] ? 'on' : 'off'?></span></a>
+			</div> 
+			<div class="info">
+				Ship <?=SHIP_VERSION?> - <a href="http://ael.me/ship/">ael.me/ship</a>
+			</div>
+			<div style="clear: both"></div>
 		</div>
 		<!-- scripts -->
 		<script type="text/javascript">
