@@ -234,7 +234,7 @@ if ($ship->errors())
 			<div class="info">
 				Ship <?=SHIP_VERSION?> - <a href="http://ael.me/ship/">ael.me/ship</a>
 			</div>
-			<div style="clear: both"></div>
+			<div class="clearer"></div>
 		</div>
 		<!-- scripts -->
 		<script type="text/javascript">

@@ -4,11 +4,18 @@ body {
 	background-color: #0C0C0C;
 	color: #CCC;
 	font: normal 12px "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+}
+body.iphone {
 	-webkit-text-size-adjust: none;
 }
 #wrapper {
 	margin: 10px auto;
 	width: 400px;
+}
+.clearer {
+	clear: both;
+	margin: 0;
+	padding: 0;
 }
 
 #errors {
