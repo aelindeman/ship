@@ -192,8 +192,8 @@ class Ship
 		# get CPU information
 		$proc = explode (':', trim (`cat /proc/cpuinfo | grep -i 'model name' | head -1`));
 
-		# remove unnecessary words and extra spaces
-		$remove = array ('(R)','(C)','(TM)', 'CPU', 'processor', '   ');
+		# remove unnecessary words
+		$remove = array ('(R)','(C)','(TM)', 'CPU', 'processor');
 		$cpu['model'] = trim (str_ireplace ($remove, null, $proc[1]));
 
 		# get load average and discard the process info at the end
