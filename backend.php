@@ -21,12 +21,19 @@ class Ship
 {
 	# Ship meta stuff
 
-	/* Error reporter variable. This tells the main Ship page if there were any
-	errors rendering the page. Each message should be an additional array, with
-	[0] as the message and [1] as the severity level: 0 for info, 1 for warning
-	(which will display the message but not halt the page), and 2 for critical
-	(which will die() the page). */
-	protected $errors = array();
+	/* Error stack. This tells the main Ship page if there were any problems in
+	the backend (this file).
+	
+	Each error is an array of a string, which describes the error, and a
+	"severity level", which tells Ship what to do with the error on the main
+	page.
+	
+	Severity levels: 0 for informational, 1 for warning, and 2 for critical.
+	
+	Errors with severity level of 0 are not displayed unless the show_all_errors
+	setting is set to true. Severity level 1 errors are always shown, but don't
+	halt the page. Errors with severity level 2 immediately stop the page. */
+	private $errors = array();
 
 	/* Returns the array of errors. */
 	public function errors ()
@@ -78,8 +85,8 @@ class Ship
 			$this->add_error ('The default configuration has been loaded
 			because the normal Ship configuration file ('.$cfgfile.') is
 			missing or cannot be read by your web server. Check that it is in
-			the proper location and change its permissions so that "others" can
-			read it.', 0);
+			the proper location and change its permissions so that the server
+			can read it.', 1);
 			return $defaults;
 		}
 		else
@@ -91,8 +98,10 @@ class Ship
 		}
 	}
 
-	/* When initialized, the config variable should have the configuration in
-	it. Also checks if Ship is running on a valid operating system. */
+	/* Run some checks when the class is first constructed. Make sure that PHP
+	shorttag echos work, that Ship is running on a supported operating system,
+	and that the proper files in /proc are there. Also, place the configuration
+	inside the private variable (so that the config is only constructed once) */
 	public function __construct ()
 	{
 		# make sure all of the <?= echos work in index.php - these can be turned
@@ -101,16 +110,30 @@ class Ship
 		$version = version_compare (PHP_VERSION, '5.4.0', '<');
 		if (!$shorttag and $version)
 		{
-			die ('Ship requires that the short_open_tag preference is enabled in
-			php.ini.');
+			$this->add_error ('Ship requires that the short_open_tag preference is enabled in
+			php.ini.', 2);
 		}
 
 		# stop if the computer is using an OS that Ship doesn't work on
 		$supported_oses = array ('Linux');
 		if (!in_array (PHP_OS, $supported_oses))
 		{
-			die ('Unfortunately, Ship is not supported on this
-			platform ('.PHP_OS.').');
+			$this->add_error ('Unfortunately, Ship is not supported on this
+			platform ('.PHP_OS.').', 2);
+		}
+		
+		/* Make sure the files in /proc exist
+		TODO: keep better track of the files that are used, instead of hard-
+		coding them */
+		if (!file_exists ('/proc/sys/kernel/hostname') or
+			!file_exists ('/proc/uptime') or
+			!file_exists ('/proc/loadavg') or
+			!file_exists ('/proc/cpuinfo') or
+			!file_exists ('/proc/meminfo'))
+		{
+			$this->add_error ('Ship could not find some necessary files in the
+			/proc filesystem. This might mean Ship cannot run on this operating
+			system.', 2);
 		}
 		
 		$this->config = $this->config();
@@ -312,7 +335,7 @@ class Ship
 		{
 			$this->add_error ('Ship could not connect to the hddtemp daemon on
 			port 7634. Check that hddtemp is installed and running. Hard disk
-			temperature information will not be available.', 1);
+			temperature information will not be available.', 0);
 			return array();
 		}
 
@@ -332,7 +355,7 @@ class Ship
 			if ($c[3] == '*')
 			{
 				$this->add_error ("The temperature of the disk ${c[0]} wasn't
-				displayed because hddtemp told Ship that it was '{$c[2]}'.", 0);
+				displayed because hddtemp told Ship that it was '{$c[2]}'.", 1);
 				continue;
 			}
 
@@ -433,6 +456,12 @@ if (!empty ($_GET['q']))
 {
 	$ship = new Ship();
 	$config = $ship->config();
+	
+	# check for errors first
+	foreach ($ship->errors() as $error)
+	{
+		if ($error[1] > 1) die ($error[0]);
+	}
 
 	$query = $_GET['q'];
 
@@ -461,8 +490,5 @@ if (!empty ($_GET['q']))
 		$data = $ship->$query();
 	}
 
-	# still show errors, but ignore them unless they are critical
-	if ($errors = $ship->errors() and $errors[0][1] > 1) die ($errors[0][0]);
-
 	exit (json_encode($data));
-}
+}	

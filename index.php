@@ -93,14 +93,37 @@ function fix_css ()
 	return (strpos ($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false);
 }
 
-# Display any Ship errors
-if ($ship->errors())
+/* Displays non-fatal backend errors, if any. */
+function show_nonfatal_errors ($errors, $config)
 {
-	foreach ($ship->errors() as $e)
+	if (sizeof ($errors) > 0)
 	{
-		if ($e[1] >= 2) die ($e[0]);
+		$disp = '<ul id="errors">';
+		foreach ($errors as $e)
+		{
+			if ($e[1] > 0 or $config['show_all_errors'])
+			{
+				$severity = strtr ($e[1], array ('0' => 'info', '1' => 'warn', '2' => 'crit'));
+				$disp .= '<li class="'.$severity.'">'.$e[0].'</li>';
+			}
+		}
+		return $disp.'</ul>';
 	}
 }
+
+/* Kills the page if Ship encountered any fatal errors. (this should be done
+last) */
+if ($ship->errors())
+{
+	$die = '';
+	foreach ($ship->errors() as $e)
+	{
+		if ($e[1] >= 2) $die .= $e[0] . '<br />';
+	}
+
+	if (!empty ($die)) die ($die);
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -132,20 +155,7 @@ if ($ship->errors())
 
 	</head>
 	<?=(fix_css()) ? '<body class="iphone">' : '<body>'; ?>
-		<?php if ($errors = $ship->errors()) { ?>
-		<ul id="errors">
-			<?php
-			foreach ($errors as $e)
-			{
-				if ($e[1] > 0 or $config['show_all_errors'])
-				{
-					$severity = strtr ($e[1], array ('0' => 'info', '1' => 'warn', '2' => 'crit'));
-					echo '<li class="'.$severity.'">'.$e[0].'</li>';
-				}
-			}
-			?>
-		</ul>
-		<?php } ?>
+		<?=show_nonfatal_errors($ship->errors(), $config)?>
 		<div id="wrapper">
 			<div id="ship">
 				<div id="header">
