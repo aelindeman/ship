@@ -90,11 +90,11 @@ displays if you're on a slow connection.)
 ### Only the uptime is updating itself. ###
 
 If **only** the uptime is changing, that may mean your browser does not have a
-native JSON parser. To fix this, you need a newer browser which supports newer
-standards (such as [Firefox](http://mozilla.com/firefox) or
-[Chrome](http://google.com/chrome)). You can also check the `refresh_rate`
-setting, do "Edit > Select All", and see what unhighlights itself after waiting
-however long `refresh_rate` is set to.
+native JSON parser. Ship should say on the bottom of the page that "Auto-refresh
+is not supported" if this is the case. To fix this, you need a newer browser
+which supports newer standards (such as [Firefox](http://mozilla.com/firefox) or
+[Chrome](http://google.com/chrome)). You might also want to check that the
+`refresh_rate` setting isn't set to a very large value.
 
 ### Why isn't hddtemp working? ###
 
@@ -112,12 +112,12 @@ I use the short (and quite convenient) PHP open tag to print data to the screen
 in Ship. However, this means you need the `short_open_tag` setting enabled in
 the PHP configuration file. It is *usually* enabled, but if Ship complains about
 it, you can edit your `php.ini` file and change the `short_open_tag` setting to
-"`On`". The location of `php.ini` depends on your operating system and web 
+"`On`". The location of `php.ini` depends on your operating system and web
 server configuration - for me it's in `/etc/php5/cgi/php.ini` - but you can try
 to look for it by running this command in a terminal:
 
     whereis php.ini
-    
+
 You can also upgrade to PHP 5.4 (where short echo tags are always enabled), but
 I would advise against that just for trying to run Ship.
 
