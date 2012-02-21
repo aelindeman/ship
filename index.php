@@ -110,20 +110,6 @@ function show_nonfatal_errors ($errors, $config)
 		return $disp.'</ul>';
 	}
 }
-
-/* Kills the page if Ship encountered any fatal errors. (this should be done
-last) */
-if ($ship->errors())
-{
-	$die = '';
-	foreach ($ship->errors() as $e)
-	{
-		if ($e[1] >= 2) $die .= $e[0] . '<br />';
-	}
-
-	if (!empty ($die)) die ($die);
-}
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -240,7 +226,7 @@ if ($ship->errors())
 		<div id="footer">
 			<div id="artoggle">
 				<a href="#" onclick="toggle_auto_refresh()">Auto-refresh <span id="arstatus"><?=$config['auto_refresh'] ? 'on' : 'off'?></span></a>
-			</div> 
+			</div>
 			<div class="info">
 				Ship <?=SHIP_VERSION?> - <a href="http://ael.me/ship/">ael.me/ship</a>
 			</div>

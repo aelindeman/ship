@@ -23,13 +23,13 @@ class Ship
 
 	/* Error stack. This tells the main Ship page if there were any problems in
 	the backend (this file).
-	
+
 	Each error is an array of a string, which describes the error, and a
 	"severity level", which tells Ship what to do with the error on the main
 	page.
-	
+
 	Severity levels: 0 for informational, 1 for warning, and 2 for critical.
-	
+
 	Errors with severity level of 0 are not displayed unless the show_all_errors
 	setting is set to true. Severity level 1 errors are always shown, but don't
 	halt the page. Errors with severity level 2 immediately stop the page. */
@@ -121,7 +121,7 @@ class Ship
 			$this->add_error ('Unfortunately, Ship is not supported on this
 			platform ('.PHP_OS.').', 2);
 		}
-		
+
 		/* Make sure the files in /proc exist
 		TODO: keep better track of the files that are used, instead of hard-
 		coding them */
@@ -135,8 +135,20 @@ class Ship
 			/proc filesystem. This might mean Ship cannot run on this operating
 			system.', 2);
 		}
-		
+
 		$this->config = $this->config();
+
+		/* Kills the page if Ship encountered any fatal errors. */
+		if ($errors = $this->errors)
+		{
+			$die = '';
+			foreach ($errors as $e)
+			{
+				if ($e[1] >= 2) $die .= $e[0] . "\n";
+			}
+
+			if (!empty ($die)) die ($die);
+		}
 	}
 
 	/* The Ship class shoudln't be echoed, but just in case it is, show the
@@ -455,14 +467,8 @@ the function. The data is returned in a JSON array. */
 if (!empty ($_GET['q']))
 {
 	$ship = new Ship();
-	$config = $ship->config();
-	
-	# check for errors first
-	foreach ($ship->errors() as $error)
-	{
-		if ($error[1] > 1) die ($error[0]);
-	}
 
+	$config = $ship->config();
 	$query = $_GET['q'];
 
 	# provide the entire backend as json, or specify which section
@@ -491,4 +497,4 @@ if (!empty ($_GET['q']))
 	}
 
 	exit (json_encode($data));
-}	
+}
