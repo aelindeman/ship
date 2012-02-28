@@ -168,8 +168,15 @@ class Ship
 		$sizes = array ('EB', 'PB', 'TB', 'GB', 'MB', 'kB');
 		$total = count ($sizes);
 
-		while ($total-- && $kb > 1024) $kb /= 1024;
+		while ($total-- and $kb > 1024) $kb /= 1024;
 		return round ($kb, $p).' '.$sizes[$total];
+	}
+
+	/* Removes excess spaces from strings. Different from the builtin trim()
+	because it also removes extra spaces from in between words. */
+	private function prettify_string ($string)
+	{
+		return preg_replace ('/\s+/', ' ', trim ($string));
 	}
 
 	# Helper functions ends - Ship modules below
@@ -184,8 +191,8 @@ class Ship
 			'hostname' => trim (file_get_contents('/proc/sys/kernel/hostname')),
 			'ip' => trim ($_SERVER['SERVER_ADDR']),
 			'domain' => trim (gethostbyaddr ($_SERVER['SERVER_ADDR'])),
-			'os' => trim (`lsb_release -d | cut -f2-`),
-			'kernel' => trim (`uname -rm`),
+			'os' => $this->prettify_string (`lsb_release -d | cut -f2-`),
+			'kernel' => $this->prettify_string (`uname -rm`),
 			'uptime' => '0d 00:00',
 		);
 
@@ -229,10 +236,10 @@ class Ship
 
 		# remove unnecessary words
 		$remove = array ('(R)','(C)','(TM)', 'CPU', 'processor');
-		$cpu['model'] = trim (str_ireplace ($remove, null, $proc[1]));
+		$cpu['model'] = $this->prettify_string (str_ireplace ($remove, null, $proc[1]));
 
 		# get load average and discard the process info at the end
-		$load = trim (file_get_contents ('/proc/loadavg'));
+		$load = $this->prettify_string (file_get_contents ('/proc/loadavg'));
 		$load = explode (' ', $load);
 		$cpu['load'] = implode (' ', array ($load[0], $load[1], $load[2]));
 
