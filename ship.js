@@ -5,6 +5,11 @@
  * array.
 */
 
+/* Timeouts for the update timeouts so they can be cancelled if the uptime
+toggler is toggled. */
+var upd_uptime_timeout;
+var upd_ship_timeout;
+
 /* Function called when the auto-refresh toggle button is clicked. */
 function toggle_auto_refresh ()
 {
@@ -33,6 +38,11 @@ function toggle_auto_refresh ()
 		// tell the updaters to start again
 		animate_uptime();
 		update_ship();
+	}
+	else
+	{
+		clearTimeout (upd_uptime_timeout);
+		clearTimeout (upd_ship_timeout);
 	}
 	
 	return false;
@@ -67,7 +77,7 @@ function animate_uptime()
 	
 	if (auto_refresh)
 	{
-		setTimeout ("animate_uptime()", 1000);
+		upd_uptime_timeout = setTimeout ("animate_uptime()", 1000);
 	}
 }
 
@@ -200,6 +210,6 @@ function update_ship ()
 
 	if (auto_refresh)
 	{
-		setTimeout ("update_ship()", refresh_rate);
+		upd_ship_timeout = setTimeout ("update_ship()", refresh_rate);
 	}
 }
