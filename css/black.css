@@ -88,6 +88,10 @@ body.iphone {
     font-size: 11px;
     line-height: 12px;
 }
+#processes .process {
+	font-family: Consolas, 'Lucida Console', 'DejaVu Sans Mono', 'Menlo', monospace;
+	line-height: 12px;
+}
 
 #memory #swap {
 	margin-top: 8px;
