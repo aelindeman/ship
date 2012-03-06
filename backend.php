@@ -72,6 +72,8 @@ class Ship
 			'refresh_rate' => 5,
 			'show_all_errors' => false,
 			'uptime_display_sec' => true,
+			'process_count' => 3,
+			'use_old_ps_args' => false,
 			'disable_hddtemp' => false,
 			'temperature_units' => 'c',
 			'temperature_warn' => 40,
@@ -92,6 +94,17 @@ class Ship
 		else
 		{
 			$cfg = parse_ini_file ($cfgfile, false);
+
+			# alert if a config key doesn't exist (non critical)
+			foreach ($cfg as $key => $val)
+			{
+				if (!array_key_exists ($key, $defaults))
+				{
+					$this->add_error ('The configuration key "'.$key.'" in
+					config.ini will be ignored because it is not a key Ship
+					recognizes. (Check your spelling, just in case.)', 0);
+				}
+			}
 
 			# second array takes precedent
 			return array_merge ($defaults, $cfg);
@@ -246,8 +259,10 @@ class Ship
 		return $cpu;
 	}
 
-	/* Provides information about running processes. 'count' parameter is how many processes to list under "top" processes. */
-	public function processes ($count = 3)
+	/* Provides information about running processes. 'count' parameter is how
+	many processes to list under "top" processes. 'use_old_args' parameter is
+	whether or not to use a more compatible argument list for ps. */
+	public function processes ($count = 3, $use_old_args = false)
 	{
 		$ps = array (
 			'active' => 0,
@@ -263,9 +278,12 @@ class Ship
 
 		$ps['active'] = $active;
 		$ps['total'] = $total;
+		$ps['top'] = array();
 
 		# add the top three processes to the list
-		$top = trim (`ps axo pmem,pcpu,pid,comm k -pcpu,-pmem`);
+		$top = $use_old_args ?
+			trim (`ps -e -o pmem,pcpu,pid,comm | sort -r -k 1`) :
+			trim (`ps axo pmem,pcpu,pid,comm k -pcpu,-pmem`);
 
 		# nicely format the array
 		$list = explode ("\n", $top);
