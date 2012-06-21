@@ -204,7 +204,7 @@ class Ship
 			'hostname' => trim (file_get_contents('/proc/sys/kernel/hostname')),
 			'ip' => trim ($_SERVER['SERVER_ADDR']),
 			'domain' => trim (gethostbyaddr ($_SERVER['SERVER_ADDR'])),
-			'os' => $this->prettify_string (`lsb_release -d | cut -f2-`),
+			'os' => $this->prettify_string (file_get_contents('/etc/issue.net'),
 			'kernel' => $this->prettify_string (`uname -rm`),
 			'uptime' => '0d 00:00',
 		);
