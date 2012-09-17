@@ -415,9 +415,9 @@ class Ship
 				case 'F':
 				{
 					if ($units == 'C')
-						$temp = round (($temp - 32) * 5/9);
+						$temp = round (($temp - 32) * (5/9));
 					else if ($units == 'K')
-						$temp = round ((($temp - 32) * 5/9) + 273);
+						$temp = round ((($temp - 32) * (5/9)) + 273);
 					else
 						$temp = $temp;
 					break;
