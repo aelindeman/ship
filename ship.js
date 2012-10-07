@@ -127,6 +127,9 @@ function do_ram ()
 function do_hddtemp ()
 {
 	var table = "";
+	
+	// don't use degree symbol if using Kelvin
+	di = (data.hddtemp[0].units.toUpperCase() != "K") ? "&deg;" : " ";
 
 	for (i in data.hddtemp)
 	{
@@ -138,7 +141,7 @@ function do_hddtemp ()
 
 		table += "<tr><td class='dev'>" + dev + "</td><td class='model'>" +
 			model + "</td><td class='temp " + status + "'><span>" + temp +
-			"&deg;" + units + "</span></td></tr>";
+			di + units + "</span></td></tr>";
 	}
 
 	document.getElementById("hdttable").innerHTML = table;
