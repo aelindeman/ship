@@ -1,148 +1,60 @@
-Ship 2.0 Readme
-===============
+# Ship #
 
-1. Prerequisites
-----------------
+Ship is a dead-simple web-based monitoring utility for Linux systems.
 
-Ship is designed to be run on GNU/Linux distributions with a `procfs` partition.
-This is where Ship gets all of its data, so if it doesn't exist, it won't work.
-Ubuntu and other Debian-derived distributions are perfect (what I use while
-writing and testing code for Ship), and others will probably work too.
+Ship’s designed to show a comprehensive yet concise amount of information in an easy to access format. It displays general system information — such as uptime, available memory, disk usage, and hard disk temperature — on a single web page. It is written in PHP, and works on most Linux systems.
 
-You'll also need PHP 5.2 or later, and to make things simple, a web server along
-with it. Chances are you need a web server for something else anyway, so
-hopefully Ship won't consume too much of your space.
+## Dependencies ##
 
-Ship also needs a few programs before it can run:
+Ship requires the following:
 
-- `cat`
-- `df`
-- `grep`
-- `lsb_release`
-- `uname`
-- `who`
+  * A computer running some flavor of Linux
+  * PHP 5.2 or later
+  * Apache, nginx, lighttpd, or some other web server
 
-All of these are probably already installed on your computer, since they are
-very standard Linux utilities - but if something doesn't work, you can
-double-check this list.
+Ship can also make use of [`hddtemp`](http://github.com/guzu/hddtemp) if it is running as a daemon on port 7634 (its default). `hddtemp` can be installed on most Ubuntu and Debain distros with:
 
-Ship can also make use of `hddtemp`, but it's not 100% necessary (though highly
-recommended).
+    sudo apt-get install hddtemp
 
-2. Setup
---------
 
-First, you must download Ship, which you've probably already done, so you can
-skip this part.
+## Getting started ##
 
-There are 2 ways you can download Ship: you can check out the trunk from
-Subversion using:
+  * Download Ship
+  * Put it in a place your web server can "see" it
+  * Futz with `config.ini`, if you'd like
+  * Open any web browser, and go to Ship
 
-    svn co svn://ael.me/ship/trunk ship2
 
-or, you can download a tarball from the [Ship website](http://ael.me/ship/). If
-you know how to use Subversion, you probably don't need to follow the rest of
-this tutorial, and can just check out directly to the web server folder.
+## Configuration ##
 
-Once you've downloaded the tarball, you can extract the Ship folder anywhere
-convenient, like your home folder or (for the sake of this readme) the desktop.
-To do this, you can use any utility that can read `.tar.gz` files, like, well,
-`tar`:
+This is a list of configuration options that can be set in `config.ini`.
 
-    tar xfvz ship-current.tar.gz ~/Desktop/ship2
+  * `stylesheet` - CSS stylesheet to use. Must be inside the "css" folder.
+  * `auto_refresh` - Automatically reload data while Ship is open.
+  * `refresh_rate` - How fast that data is reloaded.
+  * `show_all_errors` - Essentially a debug mode, forces all errors to be displayed.
+  * `uptime_display_sec` - Display seconds with uptime.
+  * `process_count` - How many processes to list.
+  * `use_old_ps_args` - Use an alternate, more compatible argument list for `ps`. Use this if the process list isn't working properly.
+  * `disable_hddtemp` - Disables `hddtemp` functionality.
+  * `temperature_units` - Units to use for disk temperatures.
+  * `temperature_warn` and `temperature_crit` - When to warn about disk temperatures (for now, this simply highlights the temperature). Values should be in the same units as `temperature_units`.
+  * `ignore_disk[]` - Ignore a single disk in the disk space list. Multiple `ignore_disk[]`s can be used to hide more than one.
 
-or an archive manager with a GUI like `file-roller` and simply drag the "ship"
-folder out.
+It is not necessary to keep all of the keys in the config file; a default value will be loaded if the key is not present or set properly.
 
-Next, we'll have to move the folder to a place where your web server can see it,
-like `/var/www/` or `~/htdocs/`:
+## Issues ##
 
-	mv -iv ~/Desktop/ship2 /var/www/
+  * Ship has only been tested on Ubuntu Server and Debian. It will probably work on other distros, but I haven't tested them.
+  * Ship assumes a virtual `procfs` partition at `/proc/`. If there isn't one, Ship won't work at all.
+  * `short_open_tag` **must** be enabled in `php.ini`. By default it is already enabled.
+  * Not all web browsers support native JSON parsing. Ship will check for this and will display a message at the lower left if it is not supported. If the page information (besides the uptime clock) is not updating, this is probably the reason why.
 
-Now open your web browser of choice, and go to
-[http://localhost/ship2](http://localhost/ship2). You should see Ship!
+## More information ##
 
-If you want to look at the statistics of the computer from a *different*
-computer, use the computer's IP address instead of "localhost". This is very
-(very!) handy for monitoring a server or another computer you're not sitting in
-front of.
+  * Author: Alex Lindeman [[aelindeman](http://github.com/aelindeman/)]
 
-3. FAQ & Troubleshooting
-------------------------
-
-### Where'd the Settings page go? How do I change the settings now? ###
-
-Unfortunately for you, I removed the friendly GUI editor found in previous
-versions of Ship because there was a lot of redundant code and I felt like it
-added a lot of unnecessary complexity. Now you have to manually edit
-`config.ini` with a text editor like `nano` in order to change the
-configuration. Defaults are stored within `backend.php` now, so you don't even
-need the configuration file if you don't want it there and like the way Ship is
-by default. (Ship will load the defaults automatically without complaining if it
-can't find `config.ini`.)
-
-### Nothing is updating itself. ###
-
-Make sure Javascript is enabled, and your browser supports it. Nearly all of
-them do. (This is also a good way to *keep* Ship from updating the data it
-displays if you're on a slow connection.)
-
-### Only the uptime is updating itself. ###
-
-If **only** the uptime is changing, that may mean your browser does not have a
-native JSON parser. Ship should say on the bottom of the page that "Auto-refresh
-is not supported" if this is the case. To fix this, you need a newer browser
-which supports newer standards (such as [Firefox](http://mozilla.com/firefox) or
-[Chrome](http://google.com/chrome)). You might also want to check that the
-`refresh_rate` setting isn't set to a very large value.
-
-### Why isn't hddtemp working? ###
-
-This is more likely a problem with hddtemp than a problem with Ship. Make sure
-hddtemp is running on port 7634, and then refresh Ship. You should also try
-restarting hddtemp if it still doesn't work.
-
-### I don't want to install hddtemp. Can I disable the warning? ###
-
-Absolutely. Open up `config.ini` and change the `disable_hddtemp` key to "true".
-
-### Ship is telling me to enable `short_open_tag`, but I don't know how. ###
-
-I use the short (and quite convenient) PHP open tag to print data to the screen
-in Ship. However, this means you need the `short_open_tag` setting enabled in
-the PHP configuration file. It is *usually* enabled, but if Ship complains about
-it, you can edit your `php.ini` file and change the `short_open_tag` setting to
-"`On`". The location of `php.ini` depends on your operating system and web
-server configuration - for me it's in `/etc/php5/cgi/php.ini` - but you can try
-to look for it by running this command in a terminal:
-
-    whereis php.ini
-
-You can also upgrade to PHP 5.4 (where short echo tags are always enabled), but
-I would advise against that just for trying to run Ship.
-
-### Ship says my operating system is unsupported. ###
-
-Remember, Ship **does not work** on Mac OS X or Windows.
-
-If you're not running one of those, Ship checks to see what operating system
-you're running with the `PHP_OS` constant. The only way to bypass this is to add
-your operating system to the portion of the source code where Ship performs this
-check (`__construct()` in `backend.php`), or to remove that check altogether.
-You won't break anything by doing this, but Ship will try to run and might
-either crash spectacularly with many many errors, or will run correctly.
-
-### Ship is ugly. I want to make it look better. ###
-
-Sure! You just need to know CSS. Duplicate `css/default.css` as a starting
-point, and tell the configuration (`config.ini`) to use your new CSS file. There
-is also an alternate stylesheet (included) that you can use if you're lazy.
-
-4. License
-----------
-Ship: a web-based system monitoring application
-
-Copyright (C) 2008-2012 Alex Lindeman
+## License ##
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
