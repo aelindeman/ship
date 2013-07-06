@@ -98,11 +98,12 @@ function do_processes ()
 	{
 		pid = data.processes.top[i].pid;
 		process = data.processes.top[i].process;
+		user = data.processes.top[i].user;
 		cpu = data.processes.top[i].cpu;
 		ram = data.processes.top[i].ram;
 
 		table += "<tr><td class='pid'>" + pid + "</td><td class='process'>" +
-			process + "</td><td class='cpu'>" + cpu + "</td><td class='ram'>" +
+			process + "</td><td class='user'>" + user + "</td><td class='cpu'>" + cpu + "</td><td class='ram'>" +
 			ram + "</td></tr>";
 	}
 

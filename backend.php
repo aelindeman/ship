@@ -72,7 +72,7 @@ class Ship
 			'refresh_rate' => 5,
 			'show_all_errors' => false,
 			'uptime_display_sec' => true,
-			'process_count' => 3,
+			'process_count' => 5,
 			'use_old_ps_args' => false,
 			'disable_hddtemp' => false,
 			'temperature_units' => 'c',
@@ -282,8 +282,8 @@ class Ship
 
 		# add the top three processes to the list
 		$top = $use_old_args ?
-			trim (`ps -e -o pmem,pcpu,pid,comm | sort -r -k 1`) :
-			trim (`ps axo pmem,pcpu,pid,comm k -pcpu,-pmem`);
+			trim (`ps -e -o pmem,pcpu,pid,user,comm | sort -r -k 1`) :
+			trim (`ps axo pmem,pcpu,pid,user,comm k -pcpu,-pmem`);
 
 		# nicely format the array
 		$list = explode ("\n", $top);
@@ -293,11 +293,12 @@ class Ship
 		{
 			if (isset ($list[$i]))
 			{
-				$split = preg_split('/\s+/', $list[$i], 4, PREG_SPLIT_NO_EMPTY);
+				$split = preg_split('/\s+/', $list[$i], 5, PREG_SPLIT_NO_EMPTY);
 
 				$process = array (
 					'pid' => $split[2],
-					'process' => $split[3],
+					'process' => $split[4],
+					'user' => $split[3],
 					'cpu' => $split[1],
 					'ram' => $split[0],
 				);
@@ -460,7 +461,7 @@ class Ship
 	/* Shows mountpoints' capacity and space remaining. */
 	public function diskspace ()
 	{
-		$proc = trim (`df -lkPT -x tmpfs | sed -e '1d'`);
+		$proc = trim (`df -lkPT -x tmpfs -x devtmpfs -x rootfs | sed -e '1d'`);
 
 		$disks = array();
 		foreach (explode ("\n", $proc) as $d)
@@ -502,7 +503,7 @@ if (!empty ($_GET['q']))
 		$data = array (
 			'machine' => $ship->machine(),
 			'cpu' => $ship->cpu(),
-			'processes' => $ship->processes(),
+			'processes' => $ship->processes($config['process_count'], $config['use_old_ps_args']),
 			'ram' => $ship->ram(),
 			'diskspace' => $ship->diskspace(),
 		);

@@ -40,6 +40,7 @@ foreach ($ps['top'] as $p)
 <tr>
 	<td class="pid">${p['pid']}</td>
 	<td class="process">${p['process']}</td>
+	<td class="user">{$p['user']}</td>
 	<td class="cpu">${p['cpu']}</td>
 	<td class="ram">${p['ram']}</td>
 </tr>
@@ -163,6 +164,7 @@ function show_nonfatal_errors ($errors, $config)
 						<thead>
 							<tr class="header">
 								<th colspan="2" id="pstotal"><?=$ps['total']?> processes</th>
+								<th class="user">User</th>
 								<th class="cpu">% CPU</th>
 								<th class="ram">MEM</th>
 							</tr>
