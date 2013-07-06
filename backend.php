@@ -497,6 +497,8 @@ if (!empty ($_GET['q']))
 	$config = $ship->config();
 	$query = $_GET['q'];
 
+	$data = null;
+
 	# provide the entire backend as json, or specify which section
 	if ($query == 'json' or $query == 'all')
 	{
@@ -519,7 +521,10 @@ if (!empty ($_GET['q']))
 	}
 	else
 	{
-		$data = $ship->$query();
+		if (method_exists ($ship, $query))
+			$data = $ship->$query();
+		else
+			$data = '{"error":"Method does not exist"}';
 	}
 
 	exit (json_encode($data));
