@@ -117,14 +117,21 @@ class Ship
 	inside the private variable (so that the config is only constructed once) */
 	public function __construct ()
 	{
+		# Ship uses functions that don't exist prior to PHP 5.2, so make sure
+		# that PHP is at least that version
+		$version = version_compare(PHP_VERSION, '5.2.0', '>');
+		if (!$version)
+		{
+			$this->add_error ('PHP '.PHP_VERSION.' is not supported. Ship requires at least PHP 5.2.', 2);
+		}
+
 		# make sure all of the <?= echos work in index.php - these can be turned
 		# off in the config but are always enabled in PHP 5.4.0 and later
 		$shorttag = ini_get ('short_open_tag');
 		$version = version_compare (PHP_VERSION, '5.4.0', '<');
 		if (!$shorttag and $version)
 		{
-			$this->add_error ('Ship requires that the short_open_tag preference is enabled in
-			php.ini.', 2);
+			$this->add_error ('Ship requires that the short_open_tag preference is enabled in php.ini.', 2);
 		}
 
 		# stop if the computer is using an OS that Ship doesn't work on
@@ -195,45 +202,41 @@ class Ship
 	# Helper functions ends - Ship modules below
 
 	/* Machine information module. Displays hostname, domain name, IP address,
-	operating system information, and uptime. Single parameter used for
-	returning ONLY THE UPTIME as total number of seconds up. */
-	public function machine ($uptime_raw = false)
+	operating system information, and uptime. */
+	public function machine ()
 	{
-		# simple info stuff
-		$machine = array (
+		return array (
 			'hostname' => trim (file_get_contents('/proc/sys/kernel/hostname')),
 			'ip' => trim ($_SERVER['SERVER_ADDR']),
 			'domain' => trim (gethostbyaddr ($_SERVER['SERVER_ADDR'])),
 			'os' => $this->prettify_string(file_get_contents('/etc/issue.net')),
 			'kernel' => $this->prettify_string (`uname -rm`),
-			'uptime' => '0d 00:00',
+			'uptime' => $this->uptime(),
 		);
+	}
 
-		# uptime is a little more complicated
+	/* Machine uptime. 'raw' parameter defines whether or not to simply return
+	the total number of seconds the machine has been up. */
+	public function uptime ($raw = false)
+	{
 		$cmd = explode (' ', file_get_contents ('/proc/uptime'));
 		$seconds = round($cmd[0]);
 
-		if ($uptime_raw) return $seconds;
-		else
-		{
-			# divide and mod instead of mktime (this is easier to use)
-			$secs = str_pad (intval ($seconds % 60), 2, '0', STR_PAD_LEFT);
-			$mins = str_pad (intval ($seconds / 60 % 60), 2, '0', STR_PAD_LEFT);
-			$hours = intval ($seconds / 3600 % 24);
-			$days = intval ($seconds / 86400);
+		if ($raw) return $seconds;
 
-			# only display days if we have to
-			$days = ($days == 0) ? '' : $days.'d ';
+		$secs = str_pad (intval ($seconds % 60), 2, '0', STR_PAD_LEFT);
+		$mins = str_pad (intval ($seconds / 60 % 60), 2, '0', STR_PAD_LEFT);
+		$hours = intval ($seconds / 3600 % 24);
+		$days = intval ($seconds / 86400);
 
-			# check config if we are supposed to do seconds
-			$config = $this->config;
-			if ($config['uptime_display_sec'])
-				$machine['uptime'] = "${days}${hours}:${mins}:${secs}";
-			else
-				$machine['uptime'] = "${days}${hours}:${mins}";
-		}
+		# only display days if we have to
+		$days = ($days == 0) ? '' : $days.'d ';
 
-		return $machine;
+		# check config if we are supposed to do seconds
+		$config = $this->config;
+		return ($config['uptime_display_sec']) ?
+			"${days}${hours}:${mins}:${secs}" :
+			"${days}${hours}:${mins}";
 	}
 
 	/* Displays information about the CPU and load average. */
@@ -259,10 +262,9 @@ class Ship
 		return $cpu;
 	}
 
-	/* Provides information about running processes. 'count' parameter is how
-	many processes to list under "top" processes. 'use_old_args' parameter is
-	whether or not to use a more compatible argument list for ps. */
-	public function processes ($count = 3, $use_old_args = false)
+	/* Provides a list of running processes and some basic information about
+	them. */
+	public function processes ()
 	{
 		$ps = array (
 			'active' => 0,
@@ -281,7 +283,7 @@ class Ship
 		$ps['top'] = array();
 
 		# add the top three processes to the list
-		$top = $use_old_args ?
+		$top = $this->config['use_old_ps_args'] ?
 			trim (`ps -e -o pmem,pcpu,pid,user,comm | sort -r -k 1`) :
 			trim (`ps axo pmem,pcpu,pid,user,comm k -pcpu,-pmem`);
 
@@ -289,7 +291,7 @@ class Ship
 		$list = explode ("\n", $top);
 
 		# start at 1 to remove the header row, which is always first
-		for ($i = 1; $i < ($count + 1); $i ++)
+		for ($i = 1; $i < ($this->config['process_count'] + 1); $i ++)
 		{
 			if (isset ($list[$i]))
 			{
@@ -505,7 +507,7 @@ if (!empty ($_GET['q']))
 		$data = array (
 			'machine' => $ship->machine(),
 			'cpu' => $ship->cpu(),
-			'processes' => $ship->processes($config['process_count'], $config['use_old_ps_args']),
+			'processes' => $ship->processes(),
 			'ram' => $ship->ram(),
 			'diskspace' => $ship->diskspace(),
 		);
@@ -516,7 +518,7 @@ if (!empty ($_GET['q']))
 	else if ($query == 'uptime')
 	{
 		$data = array (
-			'uptime' => $ship->machine(true),
+			'uptime' => $ship->uptime(true),
 		);
 	}
 	else

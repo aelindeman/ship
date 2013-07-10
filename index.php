@@ -18,7 +18,7 @@ $config = $ship->config();
 
 $ma = $ship->machine();
 $cp = $ship->cpu();
-$ps = $ship->processes($config['process_count'], $config['use_old_ps_args']);
+$ps = $ship->processes();
 $ra = $ship->ram();
 $df = $ship->diskspace();
 
