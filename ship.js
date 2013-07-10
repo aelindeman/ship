@@ -16,9 +16,9 @@ function toggle_auto_refresh ()
 	// switch and show auto_refresh value in toggle button label
 	auto_refresh = !auto_refresh;
 	var refresh_state = auto_refresh ? "on" : "off";
-	
+
 	document.getElementById("arstatus").innerHTML = refresh_state;
-	
+
 	// the uptime clock will not have updated while auto_refresh was disabled,
 	// so get the current uptime
 	if (auto_refresh)
@@ -28,13 +28,12 @@ function toggle_auto_refresh ()
 		{
 			if (this.readyState == 4 && this.status == 200)
 			{
-				data = JSON.parse (this.responseText);
-				raw_uptime = data.uptime;
+				raw_uptime = JSON.parse (this.responseText);
 			}
 		}
 		xmlhttp.open ("GET", "./backend.php?q=uptime", true);
 		xmlhttp.send();
-		
+
 		// tell the updaters to start again
 		animate_uptime();
 		update_ship();
@@ -44,7 +43,7 @@ function toggle_auto_refresh ()
 		clearTimeout (upd_uptime_timeout);
 		clearTimeout (upd_ship_timeout);
 	}
-	
+
 	return false;
 }
 
@@ -74,7 +73,7 @@ function animate_uptime()
 	uptime_location.replaceChild(replacement, uptime_location.childNodes[0]);
 
 	raw_uptime ++;
-	
+
 	if (auto_refresh)
 	{
 		upd_uptime_timeout = setTimeout ("animate_uptime()", 1000);
@@ -128,7 +127,7 @@ function do_ram ()
 function do_hddtemp ()
 {
 	var table = "";
-	
+
 	// don't use degree symbol if using Kelvin
 	di = (data.hddtemp[0].units.toUpperCase() != "K") ? "&deg;" : " ";
 

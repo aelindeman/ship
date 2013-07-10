@@ -17,6 +17,7 @@ $ship = new Ship();
 $config = $ship->config();
 
 $ma = $ship->machine();
+$ut = $ship->uptime();
 $cp = $ship->cpu();
 $ps = $ship->processes();
 $ra = $ship->ram();
@@ -28,9 +29,6 @@ if (!is_int ($rr) or intval ($rr) < 1)
 {
 	$rr = 5;
 }
-
-# Get the raw uptime so the JavaScript thingy can handle it
-$raw_ut = $ship->machine (true);
 
 # prepare process list
 $processes = '';
@@ -135,7 +133,7 @@ function show_nonfatal_errors ($errors, $config)
 		//<!--
 			var auto_refresh = <?=$config['auto_refresh']?>;
 			var refresh_rate = <?=intval ($rr) * 1000 ?>;
-			var raw_uptime = <?=intval ($raw_ut)?>;
+			var raw_uptime = <?=intval ($ut)?>;
 			var uptime_show_seconds = <?=$config['uptime_display_sec'] ? 'true' : 'false'?>;
 		//-->
 		</script>

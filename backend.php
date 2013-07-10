@@ -211,13 +211,13 @@ class Ship
 			'domain' => trim (gethostbyaddr ($_SERVER['SERVER_ADDR'])),
 			'os' => $this->prettify_string(file_get_contents('/etc/issue.net')),
 			'kernel' => $this->prettify_string (`uname -rm`),
-			'uptime' => $this->uptime(),
+			'uptime' => $this->uptime(false),
 		);
 	}
 
 	/* Machine uptime. 'raw' parameter defines whether or not to simply return
-	the total number of seconds the machine has been up. */
-	public function uptime ($raw = false)
+	the total number of seconds the machine has been up (true by default) */
+	public function uptime ($raw = true)
 	{
 		$cmd = explode (' ', file_get_contents ('/proc/uptime'));
 		$seconds = round($cmd[0]);
@@ -513,13 +513,6 @@ if (!empty ($_GET['q']))
 		);
 
 		if (!$config['disable_hddtemp']) $data['hddtemp'] = $ship->hddtemp();
-	}
-	# provide raw uptime for easier javascripting
-	else if ($query == 'uptime')
-	{
-		$data = array (
-			'uptime' => $ship->uptime(true),
-		);
 	}
 	else
 	{
